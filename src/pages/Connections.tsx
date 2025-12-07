@@ -1,19 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, AnalysisResult } from "@/types/analysis";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 
 export default function Connections() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
 
   useEffect(() => {
@@ -38,6 +40,25 @@ export default function Connections() {
     }
     setLoading(false);
   };
+
+  // Group connections by person name
+  const groupedConnections = useMemo(() => {
+    const groups: Record<string, Connection[]> = {};
+    connections.forEach((conn) => {
+      if (!groups[conn.person_name]) {
+        groups[conn.person_name] = [];
+      }
+      groups[conn.person_name].push(conn);
+    });
+    return groups;
+  }, [connections]);
+
+  const personNames = useMemo(() => Object.keys(groupedConnections), [groupedConnections]);
+
+  // Check if any person has multiple reports
+  const hasAnyMultipleReports = useMemo(() => {
+    return personNames.some((name) => groupedConnections[name].length > 1);
+  }, [personNames, groupedConnections]);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("connections").delete().eq("id", id);
@@ -73,9 +94,28 @@ export default function Connections() {
     }
   };
 
+  const handlePersonClick = (personName: string) => {
+    setSelectedPerson(personName);
+    // Auto-select first connection for this person
+    const personConnections = groupedConnections[personName];
+    if (personConnections && personConnections.length > 0) {
+      setSelectedConnection(personConnections[0]);
+    }
+  };
+
+  const handleConnectionClick = (conn: Connection) => {
+    setSelectedConnection(conn);
+  };
+
+  // For single reports layout (no person has multiple reports)
+  const handleSingleReportClick = (conn: Connection) => {
+    setSelectedPerson(conn.person_name);
+    setSelectedConnection(conn);
+  };
+
   return (
     <AppLayout>
-      <div className="p-6 lg:p-10 max-w-6xl mx-auto">
+      <div className="p-6 lg:p-10 max-w-7xl mx-auto">
         <h1 className="text-2xl font-semibold text-foreground mb-6">Connections</h1>
 
         {loading ? (
@@ -86,7 +126,134 @@ export default function Connections() {
               No saved connections yet. Analyze a conversation and save it to see it here.
             </p>
           </div>
+        ) : hasAnyMultipleReports ? (
+          /* 3-Column Layout when any person has multiple reports */
+          <div className="flex gap-4">
+            {/* Column 1: Person names */}
+            <div className="w-40 shrink-0 space-y-2">
+              {personNames.map((personName) => {
+                const personConnections = groupedConnections[personName];
+                const latestAnalysis = personConnections[0]?.analysis_data as AnalysisResult | null;
+                return (
+                  <div
+                    key={personName}
+                    onClick={() => handlePersonClick(personName)}
+                    className={cn(
+                      "p-3 rounded-xl border cursor-pointer transition-colors",
+                      selectedPerson === personName
+                        ? "bg-teal/10 border-teal"
+                        : "bg-card border-border hover:bg-panel"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      {latestAnalysis?.meta?.traffic_light && (
+                        <div
+                          className={cn(
+                            "w-2.5 h-2.5 rounded-full shrink-0",
+                            getTrafficLightColor(latestAnalysis.meta.traffic_light)
+                          )}
+                        />
+                      )}
+                      <p className="font-medium text-foreground text-sm truncate">{personName}</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {personConnections.length} report{personConnections.length > 1 ? "s" : ""}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Column 2: Report instances for selected person */}
+            <div className="w-44 shrink-0">
+              {selectedPerson && groupedConnections[selectedPerson] ? (
+                <div className="space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
+                  {groupedConnections[selectedPerson].map((conn) => {
+                    const analysis = conn.analysis_data as AnalysisResult | null;
+                    const displayDate = conn.analysis_date
+                      ? format(new Date(conn.analysis_date), "MMM d, yyyy")
+                      : format(new Date(conn.created_at), "MMM d, yyyy");
+                    return (
+                      <div
+                        key={conn.id}
+                        onClick={() => handleConnectionClick(conn)}
+                        className={cn(
+                          "p-3 rounded-xl border cursor-pointer transition-colors relative group",
+                          selectedConnection?.id === conn.id
+                            ? "bg-teal/20 border-teal"
+                            : "bg-card border-border hover:bg-panel"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{displayDate}</p>
+                            {analysis?.meta && (
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-lg font-bold text-foreground">
+                                  {analysis.meta.overall_conversation_health_score}
+                                </span>
+                                <div
+                                  className={cn(
+                                    "w-2.5 h-2.5 rounded-full",
+                                    getTrafficLightColor(analysis.meta.traffic_light)
+                                  )}
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(conn.id);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive h-8 w-8"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-panel rounded-xl p-4 text-center">
+                  <p className="text-sm text-muted-foreground">Select a person</p>
+                </div>
+              )}
+            </div>
+
+            {/* Column 3: Full Report */}
+            <div className="flex-1 min-w-0">
+              {selectedConnection?.analysis_data ? (
+                <div className="bg-panel rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-medium text-foreground">
+                      {selectedConnection.person_name}
+                    </h2>
+                    {selectedConnection.analysis_date && (
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                      </p>
+                    )}
+                  </div>
+                  {selectedConnection.notes && (
+                    <p className="text-sm text-muted-foreground mb-4 italic">
+                      "{selectedConnection.notes}"
+                    </p>
+                  )}
+                  <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                </div>
+              ) : (
+                <div className="bg-panel rounded-xl p-6 text-center h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">Select a report to view details</p>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
+          /* 2-Column Layout when all persons have single reports */
           <div className="flex gap-6 flex-col lg:flex-row">
             {/* List */}
             <div className="lg:w-1/3 space-y-3">
@@ -95,7 +262,7 @@ export default function Connections() {
                 return (
                   <div
                     key={conn.id}
-                    onClick={() => setSelectedConnection(conn)}
+                    onClick={() => handleSingleReportClick(conn)}
                     className={cn(
                       "p-4 rounded-xl border cursor-pointer transition-colors",
                       selectedConnection?.id === conn.id
@@ -137,52 +304,30 @@ export default function Connections() {
               })}
             </div>
 
-            {/* Detail View */}
+            {/* Full Report View */}
             <div className="lg:w-2/3">
-              {selectedConnection ? (
-                <div className="bg-panel rounded-xl p-6 space-y-4">
-                  <h2 className="text-lg font-medium text-foreground">
-                    {selectedConnection.person_name}
-                  </h2>
-
-                  {selectedConnection.analysis_date && (
-                    <p className="text-sm text-muted-foreground">
-                      Analysis date: {selectedConnection.analysis_date}
+              {selectedConnection?.analysis_data ? (
+                <div className="bg-panel rounded-xl p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-medium text-foreground">
+                      {selectedConnection.person_name}
+                    </h2>
+                    {selectedConnection.analysis_date && (
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                      </p>
+                    )}
+                  </div>
+                  {selectedConnection.notes && (
+                    <p className="text-sm text-muted-foreground mb-4 italic">
+                      "{selectedConnection.notes}"
                     </p>
                   )}
-
-                  {selectedConnection.notes && (
-                    <div>
-                      <span className="text-xs text-muted-foreground">Notes</span>
-                      <p className="text-sm text-foreground mt-1">{selectedConnection.notes}</p>
-                    </div>
-                  )}
-
-                  {selectedConnection.analysis_data && (
-                    <div className="space-y-4 pt-4 border-t border-border">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl font-bold text-foreground">
-                          {(selectedConnection.analysis_data as AnalysisResult).meta.overall_conversation_health_score}
-                        </span>
-                        <span className="text-sm text-muted-foreground">Health Score</span>
-                        <div
-                          className={cn(
-                            "w-4 h-4 rounded-full ml-2",
-                            getTrafficLightColor((selectedConnection.analysis_data as AnalysisResult).meta.traffic_light)
-                          )}
-                        />
-                      </div>
-                      <p className="text-sm text-foreground">
-                        {(selectedConnection.analysis_data as AnalysisResult).meta.summary}
-                      </p>
-                    </div>
-                  )}
+                  <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                 </div>
               ) : (
                 <div className="bg-panel rounded-xl p-6 text-center">
-                  <p className="text-muted-foreground">
-                    Select a connection to view details
-                  </p>
+                  <p className="text-muted-foreground">Select a connection to view full report</p>
                 </div>
               )}
             </div>
