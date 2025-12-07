@@ -1,0 +1,230 @@
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAnalysis } from "@/contexts/AnalysisContext";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Connection, AnalysisResult } from "@/types/analysis";
+import { cn } from "@/lib/utils";
+
+interface SaveConnectionDrawerProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProps) {
+  const { analysisResult } = useAnalysis();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [isExisting, setIsExisting] = useState(false);
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
+  const [userName, setUserName] = useState("");
+  const [date, setDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open && user) {
+      fetchConnections();
+    }
+  }, [open, user]);
+
+  const fetchConnections = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("connections")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching connections:", error);
+      return;
+    }
+
+    // Type the data correctly
+    setConnections((data || []) as unknown as Connection[]);
+  };
+
+  const handleSave = async () => {
+    if (!user || !analysisResult) return;
+
+    if (!isExisting && !userName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for this connection.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      if (isExisting && selectedConnectionId) {
+        // Update existing connection
+        const { error } = await supabase
+          .from("connections")
+          .update({
+            analysis_data: JSON.parse(JSON.stringify(analysisResult)),
+            notes: notes || null,
+            analysis_date: date || null,
+          })
+          .eq("id", selectedConnectionId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Connection updated",
+          description: "The analysis has been saved to the existing connection.",
+        });
+      } else {
+        // Create new connection
+        const { error } = await supabase.from("connections").insert([{
+          user_id: user.id,
+          person_name: userName.trim(),
+          analysis_data: JSON.parse(JSON.stringify(analysisResult)),
+          notes: notes || null,
+          analysis_date: date || null,
+        }]);
+
+        if (error) throw error;
+
+        toast({
+          title: "Connection saved",
+          description: "Your new connection has been saved successfully.",
+        });
+      }
+
+      onClose();
+      setUserName("");
+      setDate("");
+      setNotes("");
+      setSelectedConnectionId("");
+    } catch (error) {
+      console.error("Error saving connection:", error);
+      toast({
+        title: "Error saving",
+        description: "Failed to save the connection. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/20 z-40" onClick={onClose} />
+
+      {/* Drawer */}
+      <div
+        className={cn(
+          "fixed right-0 top-0 h-full w-80 bg-card border-l border-border shadow-xl z-50",
+          "animate-slide-in-right"
+        )}
+      >
+        <div className="flex flex-col h-full p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-medium text-foreground">Save Connection</h3>
+            <button
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <Label htmlFor="existing-toggle" className="text-sm text-foreground">
+              Existing
+            </Label>
+            <Switch
+              id="existing-toggle"
+              checked={isExisting}
+              onCheckedChange={setIsExisting}
+            />
+          </div>
+
+          {/* Form */}
+          <div className="flex-1 space-y-4">
+            {isExisting ? (
+              <div className="space-y-2">
+                <Label className="text-sm text-foreground">Person:</Label>
+                <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a person" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {connections.map((conn) => (
+                      <SelectItem key={conn.id} value={conn.id}>
+                        {conn.person_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label className="text-sm text-foreground">User Name:</Label>
+                <Input
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Enter name"
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label className="text-sm text-foreground">Date (optional):</Label>
+              <Input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm text-foreground">Notes (optional):</Label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add any notes..."
+                rows={4}
+              />
+            </div>
+          </div>
+
+          {/* Save button */}
+          <Button
+            onClick={handleSave}
+            disabled={saving || (!isExisting && !userName.trim()) || (isExisting && !selectedConnectionId)}
+            className="w-full bg-teal hover:bg-teal-hover text-primary-foreground mt-6"
+          >
+            {saving ? "Saving..." : "Save"}
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+}
