@@ -1,71 +1,43 @@
 import { Link } from "react-router-dom";
+import { CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Upload, Brain, Users } from "lucide-react";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-foreground">Connection Lens</h1>
-          <Link to="/auth">
-            <Button variant="ghost" size="sm">Sign In</Button>
+    <div className="min-h-screen flex w-full">
+      {/* Sidebar */}
+      <aside className="w-40 bg-sidebar flex flex-col border-r border-border">
+        <div className="p-4">
+          <span className="text-sm font-medium text-sidebar-foreground">LOGO</span>
+        </div>
+        <div className="mt-auto p-4">
+          <Link 
+            to="/auth" 
+            className="text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+          >
+            Log In
           </Link>
         </div>
-      </header>
+      </aside>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16">
-        <div className="max-w-2xl text-center space-y-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
-            Understand Your Relationship Dynamics
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            Upload conversation screenshots and get AI-powered insights into communication patterns, emotional dynamics, and relationship health.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link to="/auth">
-              <Button size="lg" className="w-full sm:w-auto">
-                Get Started
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                Sign In
-              </Button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-4xl mt-20">
-          <div className="text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-              <Upload className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-semibold text-foreground">Upload Conversations</h3>
-            <p className="text-sm text-muted-foreground">
-              Screenshots, PDFs, or text files from any messaging platform
+      {/* Main Content */}
+      <main className="flex-1 bg-background flex items-center justify-center p-8">
+        <div className="w-full max-w-2xl">
+          {/* Upload Card */}
+          <div className="relative border-2 border-dashed border-muted-foreground/30 rounded-2xl p-12 flex flex-col items-center justify-center min-h-[400px]">
+            <CloudUpload className="w-16 h-16 text-muted-foreground/50 mb-4" />
+            <p className="text-muted-foreground text-sm">
+              Upload png, jpeg, pdf, doc.
             </p>
-          </div>
-          <div className="text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-              <Brain className="w-6 h-6 text-accent" />
+            
+            {/* Run Button */}
+            <div className="absolute bottom-6 right-6">
+              <Link to="/auth">
+                <Button className="bg-teal-500 hover:bg-teal-600 text-white px-8">
+                  Run
+                </Button>
+              </Link>
             </div>
-            <h3 className="font-semibold text-foreground">AI Analysis</h3>
-            <p className="text-sm text-muted-foreground">
-              Get detailed insights into communication styles and patterns
-            </p>
-          </div>
-          <div className="text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mx-auto">
-              <Users className="w-6 h-6 text-accent" />
-            </div>
-            <h3 className="font-semibold text-foreground">Track Connections</h3>
-            <p className="text-sm text-muted-foreground">
-              Save and monitor relationship health over time
-            </p>
           </div>
         </div>
       </main>
