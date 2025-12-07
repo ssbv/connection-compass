@@ -42,7 +42,7 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-36 min-h-screen bg-sidebar flex flex-col">
+    <aside className="fixed top-0 left-0 h-screen w-64 z-40 bg-sidebar flex flex-col">
       {/* Logo */}
       <div className="p-4 pt-6">
         <span className="text-sm font-semibold text-sidebar-foreground tracking-wide">
