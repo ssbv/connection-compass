@@ -42,13 +42,13 @@ export function OverallResultsSection() {
   };
 
   return (
-    <section id="overall-results" className="animate-fade-in">
+    <section id="overall-results" className="animate-fade-in print-keep-together">
       <h2 className="text-lg font-medium text-foreground mb-4">Overall Results</h2>
       <div className="bg-panel rounded-xl p-6 relative">
         {/* Toggle button */}
         <button
           onClick={() => setShowExamples(!showExamples)}
-          className="absolute top-4 right-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-4 right-4 text-sm text-muted-foreground hover:text-foreground transition-colors no-print"
         >
           {showExamples ? "Results" : "Examples"}
         </button>

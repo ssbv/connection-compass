@@ -136,6 +136,56 @@
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+
+  /* Print header visibility */
+  .print-header {
+    display: block !important;
+  }
+
+  /* Hide upload area in print */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Page break controls */
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  #them-you, #dynamics {
+    page-break-before: always;
+  }
+
+  /* Keep content together */
+  .print-keep-together {
+    page-break-inside: avoid;
+  }
+
+  /* Better typography for print */
+  html {
+    font-size: 11pt !important;
+  }
+
+  /* Panel backgrounds for print */
+  .bg-panel {
+    background: #f8f8f8 !important;
+    border: 1px solid #e0e0e0 !important;
+  }
+
+  /* Ensure charts print properly */
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Ensure text colors are dark for print */
+  .text-foreground {
+    color: #1a1a1a !important;
+  }
+
+  .text-muted-foreground {
+    color: #666 !important;
+  }
 }
 
 @layer utilities {
