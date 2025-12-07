@@ -173,7 +173,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex w-full">
       {/* Sidebar */}
-      <aside className="w-48 bg-sidebar flex flex-col border-r border-border">
+      <aside className="w-64 bg-sidebar flex flex-col border-r border-border">
         <div className="p-4">
           <span className="text-sm font-medium text-sidebar-foreground">LOGO</span>
         </div>
@@ -195,21 +195,21 @@ const Index = () => {
         <div className="p-4 space-y-2 border-t border-border">
           <Link 
             to="/settings" 
-            className="block text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+            className="block px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
           >
             Settings
           </Link>
           {user ? (
             <button 
               onClick={() => supabase.auth.signOut()}
-              className="block text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
             >
               Log Out
             </button>
           ) : (
             <Link 
               to="/auth" 
-              className="block text-sm text-sidebar-foreground hover:text-foreground transition-colors"
+              className="block px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
             >
               Log In
             </Link>
@@ -220,8 +220,43 @@ const Index = () => {
       {/* Main Content */}
       <main className="flex-1 bg-background overflow-y-auto">
         <div className="p-8 max-w-6xl mx-auto">
-          {/* Header with Save Connection Button */}
-          <div className="flex justify-end mb-6">
+          {/* Upload Card Row with Save Connection Button */}
+          <div className="flex items-center gap-4">
+            {/* Upload Pill */}
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              className="relative flex-1 border-2 border-dashed border-muted-foreground/30 rounded-full px-6 py-4 flex items-center gap-4 transition-colors hover:border-muted-foreground/50"
+            >
+              <input
+                type="file"
+                multiple
+                accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                style={{ clipPath: 'inset(0 120px 0 0)' }}
+              />
+              <CloudUpload className="w-8 h-8 text-muted-foreground/50 flex-shrink-0" />
+              <p className="text-muted-foreground text-sm flex-1">
+                Upload png, jpeg, pdf, doc.
+              </p>
+              <Button 
+                onClick={handleRun}
+                disabled={isAnalyzing || uploadedFiles.length === 0}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-6 flex-shrink-0 z-10"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Analyzing...
+                  </>
+                ) : (
+                  "Run"
+                )}
+              </Button>
+            </div>
+
+            {/* Save Connection Button */}
             <Button 
               onClick={() => setSaveDrawerOpen(true)}
               disabled={!user || !hasResults}
@@ -231,39 +266,17 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Upload Card - Horizontal Pill Shape */}
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            className="relative border-2 border-dashed border-muted-foreground/30 rounded-full px-6 py-4 flex items-center gap-4 transition-colors hover:border-muted-foreground/50"
-          >
-            <input
-              type="file"
-              multiple
-              accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
-              onChange={handleFileChange}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              style={{ clipPath: 'inset(0 120px 0 0)' }}
-            />
-            <CloudUpload className="w-8 h-8 text-muted-foreground/50 flex-shrink-0" />
-            <p className="text-muted-foreground text-sm flex-1">
-              Upload png, jpeg, pdf, doc.
-            </p>
-            <Button 
-              onClick={handleRun}
-              disabled={isAnalyzing || uploadedFiles.length === 0}
-              className="bg-teal-500 hover:bg-teal-600 text-white px-6 flex-shrink-0 z-10"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Analyzing...
-                </>
-              ) : (
-                "Run"
-              )}
-            </Button>
-          </div>
+          {/* Log in prompt - Left aligned */}
+          {!user && hasResults && (
+            <div className="mt-4">
+              <p className="text-sm text-muted-foreground">
+                <Link to="/auth" className="text-teal-500 hover:underline font-medium">
+                  Log in
+                </Link>{" "}
+                to save these results to your connections.
+              </p>
+            </div>
+          )}
 
           {/* Snapshots Section - Shows uploaded files */}
           {uploadedFiles.length > 0 && (
@@ -275,16 +288,6 @@ const Index = () => {
           {/* Results Sections */}
           {hasResults && (
             <div className="mt-8 space-y-8">
-              {!user && (
-                <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                  <p className="text-sm text-muted-foreground">
-                    <Link to="/auth" className="text-accent hover:underline font-medium">
-                      Log in
-                    </Link>{" "}
-                    to save these results to your connections.
-                  </p>
-                </div>
-              )}
               <div id="overall-results">
                 <OverallResultsSection />
               </div>
