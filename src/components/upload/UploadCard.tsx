@@ -148,7 +148,7 @@ export function UploadCard() {
     <div
       onDrop={handleDrop}
       onDragOver={handleDragOver}
-      className="relative border-2 border-dashed border-muted-foreground/30 rounded-2xl p-8 flex items-center justify-between gap-4 bg-card transition-colors hover:border-muted-foreground/50"
+      className="relative border-2 border-dashed border-muted-foreground/30 rounded-full px-6 py-4 flex items-center justify-between gap-4 bg-card transition-colors hover:border-muted-foreground/50 flex-1"
     >
       <div className="flex items-center gap-4 flex-1">
         <Upload className="h-10 w-10 text-muted-foreground/50" />

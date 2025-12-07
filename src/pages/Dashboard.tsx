@@ -18,20 +18,18 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <div className="p-6 lg:p-10 max-w-6xl mx-auto space-y-8">
-        {/* Header with Save Connection button */}
-        {hasResults && (
-          <div className="flex justify-end">
+        {/* Upload Card Row */}
+        <div className="flex items-center gap-4">
+          <UploadCard />
+          {hasResults && (
             <Button
               onClick={() => setDrawerOpen(true)}
-              className="bg-teal hover:bg-teal-hover text-primary-foreground"
+              className="bg-teal hover:bg-teal-hover text-primary-foreground rounded-full px-6"
             >
               Save Connection
             </Button>
-          </div>
-        )}
-
-        {/* Upload Card */}
-        <UploadCard />
+          )}
+        </div>
 
         {/* File Tiles */}
         <FileTiles />
