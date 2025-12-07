@@ -192,27 +192,24 @@ const Index = () => {
             <p className="text-muted-foreground text-sm">
               Upload png, jpeg, pdf, doc.
             </p>
-            
-            {/* Run Button */}
-            <div className="absolute bottom-6 right-6">
-              <Button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRun();
-                }}
-                disabled={isAnalyzing || uploadedFiles.length === 0}
-                className="bg-teal-500 hover:bg-teal-600 text-white px-8"
-              >
-                {isAnalyzing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Analyzing...
-                  </>
-                ) : (
-                  "Run"
-                )}
-              </Button>
-            </div>
+          </div>
+          
+          {/* Run Button - Outside the upload card to prevent click interference */}
+          <div className="flex justify-end mt-4">
+            <Button 
+              onClick={handleRun}
+              disabled={isAnalyzing || uploadedFiles.length === 0}
+              className="bg-teal-500 hover:bg-teal-600 text-white px-8"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Analyzing...
+                </>
+              ) : (
+                "Run"
+              )}
+            </Button>
           </div>
 
           {/* File Tiles */}
