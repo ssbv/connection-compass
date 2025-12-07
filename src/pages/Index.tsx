@@ -220,8 +220,14 @@ const Index = () => {
       {/* Main Content - Offset for fixed sidebar */}
       <main className="flex-1 ml-64 bg-background overflow-y-auto">
         <div className="p-8 max-w-6xl mx-auto">
+          {/* Print Header - Only visible when printing */}
+          <div className="hidden print-header mb-8 text-center border-b border-border pb-6">
+            <h1 className="text-2xl font-bold text-foreground">Connection Lens Analysis Report</h1>
+            <p className="text-sm text-muted-foreground mt-2">Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
+
           {/* Upload Card Row with Save Connection Button */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 print-hide">
             {/* Upload Pill */}
             <div
               onDrop={handleDrop}
@@ -302,13 +308,13 @@ const Index = () => {
           {/* Results Sections */}
           {hasResults && (
             <div className="mt-8 space-y-8">
-              <div id="overall-results">
+              <div id="overall-results" className="print-section">
                 <OverallResultsSection />
               </div>
-              <div id="them-you">
+              <div id="them-you" className="print-section">
                 <ThemYouSection />
               </div>
-              <div id="dynamics">
+              <div id="dynamics" className="print-section">
                 <DynamicsSection />
               </div>
             </div>

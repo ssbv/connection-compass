@@ -36,13 +36,13 @@ export function PersonPanel({ person, examples, title }: PersonPanelProps) {
   };
 
   return (
-    <div className="bg-panel rounded-xl p-6 relative flex-1 min-w-0">
+    <div className="bg-panel rounded-xl p-6 relative flex-1 min-w-0 print-keep-together">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-medium text-foreground">{title}</h3>
         <button
           onClick={() => setShowExamples(!showExamples)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors no-print"
         >
           {showExamples ? "Results" : "Examples"}
         </button>
