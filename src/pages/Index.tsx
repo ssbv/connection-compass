@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { CloudUpload, Loader2 } from "lucide-react";
+import { CloudUpload, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { UploadedFile } from "@/types/analysis";
@@ -278,9 +278,23 @@ const Index = () => {
             </div>
           )}
 
+          {/* Export PDF Button - Above Snapshots */}
+          {hasResults && (
+            <div className="mt-8 flex justify-end no-print">
+              <Button 
+                onClick={() => window.print()} 
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Export PDF
+              </Button>
+            </div>
+          )}
+
           {/* Snapshots Section - Shows uploaded files */}
           {uploadedFiles.length > 0 && (
-            <div id="snapshots" className="mt-8">
+            <div id="snapshots" className="mt-4">
               <SnapshotsSection />
             </div>
           )}

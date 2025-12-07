@@ -105,6 +105,10 @@
 }
 
 @layer base {
+  html {
+    font-size: 120%;
+  }
+
   * {
     @apply border-border;
   }
@@ -112,6 +116,25 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@media print {
+  aside {
+    display: none !important;
+  }
+  
+  main {
+    margin-left: 0 !important;
+  }
+  
+  button, .no-print {
+    display: none !important;
+  }
+  
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 
