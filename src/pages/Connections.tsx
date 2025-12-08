@@ -331,39 +331,38 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  {/* Scrollable grey area container */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                    {/* Header + Snapshots */}
-                    <div className="bg-panel rounded-lg rounded-b-none p-4 pb-3">
-                      {/* Print-only header */}
-                      <div className="hidden connections-print-header">
-                        <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
-                        <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
-                        <p className="text-xs text-muted-foreground mt-2 italic">
-                          Save as: "{getExportFilename()}.pdf"
+                  {/* Fixed Header + Snapshots */}
+                  <div className="bg-panel rounded-lg rounded-b-none p-4 pb-3 shrink-0">
+                    {/* Print-only header */}
+                    <div className="hidden connections-print-header">
+                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        Save as: "{getExportFilename()}.pdf"
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between mb-3 no-print">
+                      <h2 className="text-base font-medium text-foreground">
+                        {selectedConnection.person_name}
+                      </h2>
+                      {selectedConnection.analysis_date && (
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
                         </p>
-                      </div>
-                      <div className="flex items-center justify-between mb-3 no-print">
-                        <h2 className="text-base font-medium text-foreground">
-                          {selectedConnection.person_name}
-                        </h2>
-                        {selectedConnection.analysis_date && (
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
-                          </p>
-                        )}
-                      </div>
-                      {selectedConnection.notes && (
-                        <p className="text-xs text-muted-foreground mb-3 italic">
-                          "{selectedConnection.notes}"
-                        </p>
-                      )}
-                      {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                        <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                       )}
                     </div>
-                    
-                    {/* Report content */}
+                    {selectedConnection.notes && (
+                      <p className="text-xs text-muted-foreground mb-3 italic">
+                        "{selectedConnection.notes}"
+                      </p>
+                    )}
+                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                    )}
+                  </div>
+                  
+                  {/* Scrollable Report content only */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-4 pt-3 border-t border-border">
@@ -447,39 +446,38 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  {/* Scrollable grey area container */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                    {/* Header + Snapshots */}
-                    <div className="bg-panel rounded-xl rounded-b-none p-6 pb-4">
-                      {/* Print-only header */}
-                      <div className="hidden connections-print-header">
-                        <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
-                        <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
-                        <p className="text-xs text-muted-foreground mt-2 italic">
-                          Save as: "{getExportFilename()}.pdf"
+                  {/* Fixed Header + Snapshots */}
+                  <div className="bg-panel rounded-xl rounded-b-none p-6 pb-4 shrink-0">
+                    {/* Print-only header */}
+                    <div className="hidden connections-print-header">
+                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        Save as: "{getExportFilename()}.pdf"
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between mb-4 no-print">
+                      <h2 className="text-lg font-medium text-foreground">
+                        {selectedConnection.person_name}
+                      </h2>
+                      {selectedConnection.analysis_date && (
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
                         </p>
-                      </div>
-                      <div className="flex items-center justify-between mb-4 no-print">
-                        <h2 className="text-lg font-medium text-foreground">
-                          {selectedConnection.person_name}
-                        </h2>
-                        {selectedConnection.analysis_date && (
-                          <p className="text-sm text-muted-foreground">
-                            {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
-                          </p>
-                        )}
-                      </div>
-                      {selectedConnection.notes && (
-                        <p className="text-sm text-muted-foreground mb-4 italic">
-                          "{selectedConnection.notes}"
-                        </p>
-                      )}
-                      {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                        <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                       )}
                     </div>
-                    
-                    {/* Report content */}
+                    {selectedConnection.notes && (
+                      <p className="text-sm text-muted-foreground mb-4 italic">
+                        "{selectedConnection.notes}"
+                      </p>
+                    )}
+                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                    )}
+                  </div>
+                  
+                  {/* Scrollable Report content only */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-6 pt-4 border-t border-border">
