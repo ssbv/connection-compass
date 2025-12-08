@@ -37,7 +37,7 @@ export default function Connections() {
     setLoading(false);
   };
 
-  // Group connections by person name
+  // Group connections by person name and sort each group by date (newest first)
   const groupedConnections = useMemo(() => {
     const groups: Record<string, Connection[]> = {};
     connections.forEach((conn) => {
@@ -46,6 +46,16 @@ export default function Connections() {
       }
       groups[conn.person_name].push(conn);
     });
+    
+    // Sort each person's reports by date (analysis_date takes priority, fallback to created_at)
+    Object.keys(groups).forEach((personName) => {
+      groups[personName].sort((a, b) => {
+        const dateA = a.analysis_date ? new Date(a.analysis_date) : new Date(a.created_at);
+        const dateB = b.analysis_date ? new Date(b.analysis_date) : new Date(b.created_at);
+        return dateB.getTime() - dateA.getTime(); // Descending (newest first)
+      });
+    });
+    
     return groups;
   }, [connections]);
 
