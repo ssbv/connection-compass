@@ -143,7 +143,7 @@ export default function Connections() {
           /* 3-Column Layout when any person has multiple reports */
           <div className="flex gap-4">
             {/* Column 1: Person names */}
-            <div className="w-40 shrink-0 space-y-2">
+            <div className="w-48 shrink-0 space-y-2">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
                 const averageScore = calculateAverageScore(personConnections);
