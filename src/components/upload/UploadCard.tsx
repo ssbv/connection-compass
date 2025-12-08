@@ -17,11 +17,19 @@ const ACCEPTED_TYPES = [
 ];
 
 export function UploadCard() {
-  const { uploadedFiles, setUploadedFiles, setAnalysisResult, isAnalyzing, setIsAnalyzing } = useAnalysis();
+  const { 
+    uploadedFiles, 
+    setUploadedFiles, 
+    setAnalysisResult, 
+    isAnalyzing, 
+    setIsAnalyzing,
+    conversationText,
+    setConversationText,
+    inputMode,
+    setInputMode
+  } = useAnalysis();
   const { toast } = useToast();
   
-  const [inputMode, setInputMode] = useState<'upload' | 'text'>('upload');
-  const [conversationText, setConversationText] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
