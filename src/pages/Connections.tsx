@@ -317,7 +317,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 flex flex-col connections-report-column overflow-y-auto">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-2 no-print shrink-0">
@@ -331,38 +331,39 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  {/* Fixed: Header + Snapshots */}
-                  <div className="bg-panel rounded-lg rounded-b-none p-4 pb-3 shrink-0">
-                    {/* Print-only header */}
-                    <div className="hidden connections-print-header">
-                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
-                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        Save as: "{getExportFilename()}.pdf"
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between mb-3 no-print">
-                      <h2 className="text-base font-medium text-foreground">
-                        {selectedConnection.person_name}
-                      </h2>
-                      {selectedConnection.analysis_date && (
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
+                  {/* Scrollable grey area container */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    {/* Header + Snapshots */}
+                    <div className="bg-panel rounded-lg rounded-b-none p-4 pb-3">
+                      {/* Print-only header */}
+                      <div className="hidden connections-print-header">
+                        <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                        <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                        <p className="text-xs text-muted-foreground mt-2 italic">
+                          Save as: "{getExportFilename()}.pdf"
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between mb-3 no-print">
+                        <h2 className="text-base font-medium text-foreground">
+                          {selectedConnection.person_name}
+                        </h2>
+                        {selectedConnection.analysis_date && (
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
+                          </p>
+                        )}
+                      </div>
+                      {selectedConnection.notes && (
+                        <p className="text-xs text-muted-foreground mb-3 italic">
+                          "{selectedConnection.notes}"
                         </p>
                       )}
+                      {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                        <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                      )}
                     </div>
-                    {selectedConnection.notes && (
-                      <p className="text-xs text-muted-foreground mb-3 italic">
-                        "{selectedConnection.notes}"
-                      </p>
-                    )}
-                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
-                    )}
-                  </div>
-                  
-                  {/* Report content - no scrolling */}
-                  <div className="flex-1 min-h-0">
+                    
+                    {/* Report content */}
                     <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-4 pt-3 border-t border-border">
@@ -433,7 +434,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 flex flex-col connections-report-column overflow-y-auto">
+            <div className="lg:w-2/3 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print shrink-0">
@@ -446,38 +447,39 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  {/* Fixed: Header + Snapshots */}
-                  <div className="bg-panel rounded-xl rounded-b-none p-6 pb-4 shrink-0">
-                    {/* Print-only header */}
-                    <div className="hidden connections-print-header">
-                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
-                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        Save as: "{getExportFilename()}.pdf"
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between mb-4 no-print">
-                      <h2 className="text-lg font-medium text-foreground">
-                        {selectedConnection.person_name}
-                      </h2>
-                      {selectedConnection.analysis_date && (
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                  {/* Scrollable grey area container */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    {/* Header + Snapshots */}
+                    <div className="bg-panel rounded-xl rounded-b-none p-6 pb-4">
+                      {/* Print-only header */}
+                      <div className="hidden connections-print-header">
+                        <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                        <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                        <p className="text-xs text-muted-foreground mt-2 italic">
+                          Save as: "{getExportFilename()}.pdf"
+                        </p>
+                      </div>
+                      <div className="flex items-center justify-between mb-4 no-print">
+                        <h2 className="text-lg font-medium text-foreground">
+                          {selectedConnection.person_name}
+                        </h2>
+                        {selectedConnection.analysis_date && (
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                          </p>
+                        )}
+                      </div>
+                      {selectedConnection.notes && (
+                        <p className="text-sm text-muted-foreground mb-4 italic">
+                          "{selectedConnection.notes}"
                         </p>
                       )}
+                      {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                        <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                      )}
                     </div>
-                    {selectedConnection.notes && (
-                      <p className="text-sm text-muted-foreground mb-4 italic">
-                        "{selectedConnection.notes}"
-                      </p>
-                    )}
-                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
-                    )}
-                  </div>
-                  
-                  {/* Report content - no scrolling */}
-                  <div className="flex-1 min-h-0">
+                    
+                    {/* Report content */}
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-6 pt-4 border-t border-border">
