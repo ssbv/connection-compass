@@ -211,7 +211,7 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="absolute inset-0 flex flex-col overflow-hidden">
         <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
 
