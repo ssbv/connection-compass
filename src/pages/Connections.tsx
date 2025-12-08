@@ -75,6 +75,24 @@ export default function Connections() {
     }
   }, [connections, personNames, groupedConnections, selectedConnection]);
 
+  // Calculate average health score for a person's reports
+  const calculateAverageScore = (personConnections: Connection[]) => {
+    const scores = personConnections
+      .map((conn) => (conn.analysis_data as AnalysisResult | null)?.meta?.overall_conversation_health_score)
+      .filter((score): score is number => score !== undefined);
+    
+    if (scores.length === 0) return undefined;
+    
+    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+  };
+
+  // Determine traffic light color based on average score
+  const getTrafficLightForScore = (score: number | undefined) => {
+    if (score === undefined) return undefined;
+    if (score >= 70) return "green";
+    if (score >= 40) return "yellow";
+    return "red";
+  };
 
   const getTrafficLightColor = (light?: string) => {
     switch (light) {
@@ -128,7 +146,8 @@ export default function Connections() {
             <div className="w-40 shrink-0 space-y-2">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
-                const latestAnalysis = personConnections[0]?.analysis_data as AnalysisResult | null;
+                const averageScore = calculateAverageScore(personConnections);
+                const averageTrafficLight = getTrafficLightForScore(averageScore);
                 return (
                   <div
                     key={personName}
@@ -142,24 +161,24 @@ export default function Connections() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 min-w-0">
-                        {latestAnalysis?.meta?.traffic_light && (
+                        {averageTrafficLight && (
                           <div
                             className={cn(
                               "w-2.5 h-2.5 rounded-full shrink-0",
-                              getTrafficLightColor(latestAnalysis.meta.traffic_light)
+                              getTrafficLightColor(averageTrafficLight)
                             )}
                           />
                         )}
                         <p className="font-medium text-foreground text-sm truncate">{personName}</p>
                       </div>
-                      {latestAnalysis?.meta?.overall_conversation_health_score !== undefined && (
+                      {averageScore !== undefined && (
                         <span className="text-xs font-semibold text-foreground shrink-0 pl-2 mr-1">
-                          {latestAnalysis.meta.overall_conversation_health_score} / 100
+                          {averageScore} / 100
                         </span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {personConnections.length} report{personConnections.length > 1 ? "s" : ""}
+                      {personConnections.length} report{personConnections.length > 1 ? "s" : ""} · avg
                     </p>
                   </div>
                 );
