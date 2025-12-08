@@ -211,7 +211,7 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="absolute inset-0 flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden">
         <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
 
@@ -317,7 +317,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 flex flex-col connections-report-column overflow-y-auto">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-2 no-print shrink-0">
@@ -476,8 +476,8 @@ export default function Connections() {
                     )}
                   </div>
                   
-                  {/* Report content */}
-                  <div className="flex-1 min-h-0 overflow-y-auto">
+                  {/* Report content - no scrolling */}
+                  <div className="flex-1 min-h-0">
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-6 pt-4 border-t border-border">
