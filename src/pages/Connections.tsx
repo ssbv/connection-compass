@@ -330,8 +330,8 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                  <div className="bg-panel rounded-lg p-4">
+                  {/* Fixed: Header + Snapshots */}
+                  <div className="bg-panel rounded-lg rounded-b-none p-4 pb-3 shrink-0">
                     {/* Print-only header */}
                     <div className="hidden connections-print-header">
                       <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
@@ -358,19 +358,24 @@ export default function Connections() {
                     {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
                       <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                     )}
-                    <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                    <div className="flex justify-end mt-4 pt-3 border-t border-border">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteReport(selectedConnection.id)}
-                        className="text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-3 w-3 mr-1.5" />
-                        Delete
-                      </Button>
-                    </div>
                   </div>
+                  
+                  {/* Scrollable: Report content only */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
+                      <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                      <div className="flex justify-end mt-4 pt-3 border-t border-border">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteReport(selectedConnection.id)}
+                          className="text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-3 w-3 mr-1.5" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -440,8 +445,8 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
-                  <div className="flex-1 min-h-0 overflow-y-auto">
-                  <div className="bg-panel rounded-xl p-6">
+                  {/* Fixed: Header + Snapshots */}
+                  <div className="bg-panel rounded-xl rounded-b-none p-6 pb-4 shrink-0">
                     {/* Print-only header */}
                     <div className="hidden connections-print-header">
                       <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
@@ -468,19 +473,24 @@ export default function Connections() {
                     {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
                       <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                     )}
-                    <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                    <div className="flex justify-end mt-6 pt-4 border-t border-border">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteReport(selectedConnection.id)}
-                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Report
-                      </Button>
-                    </div>
                   </div>
+                  
+                  {/* Scrollable: Report content only */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
+                    <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
+                      <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                      <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteReport(selectedConnection.id)}
+                          className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Report
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </>
               ) : (
