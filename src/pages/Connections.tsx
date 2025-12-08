@@ -6,7 +6,9 @@ import { Connection, AnalysisResult } from "@/types/analysis";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
-
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { toast } from "sonner";
 export default function Connections() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -124,6 +126,36 @@ export default function Connections() {
   const handleSingleReportClick = (conn: Connection) => {
     setSelectedPerson(conn.person_name);
     setSelectedConnection(conn);
+  };
+
+  const handleDeleteReport = async (connectionId: string) => {
+    if (!user) return;
+    
+    const confirmed = window.confirm("Are you sure you want to delete this report? This action cannot be undone.");
+    if (!confirmed) return;
+    
+    // Delete associated snapshots first
+    await supabase.from("snapshots").delete().eq("connection_id", connectionId);
+    
+    // Delete the connection
+    const { error } = await supabase.from("connections").delete().eq("id", connectionId);
+    
+    if (error) {
+      console.error("Error deleting connection:", error);
+      toast.error("Failed to delete report");
+      return;
+    }
+    
+    toast.success("Report deleted successfully");
+    
+    // Update local state
+    setConnections(prev => prev.filter(c => c.id !== connectionId));
+    
+    // Clear selection if deleted report was selected
+    if (selectedConnection?.id === connectionId) {
+      setSelectedConnection(null);
+      setSelectedPerson(null);
+    }
   };
 
   return (
@@ -252,6 +284,17 @@ export default function Connections() {
                     </p>
                   )}
                   <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                  <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteReport(selectedConnection.id)}
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Report
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-panel rounded-xl p-6 text-center h-full flex items-center justify-center">
@@ -326,6 +369,17 @@ export default function Connections() {
                     </p>
                   )}
                   <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                  <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteReport(selectedConnection.id)}
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Report
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-panel rounded-xl p-6 text-center">
