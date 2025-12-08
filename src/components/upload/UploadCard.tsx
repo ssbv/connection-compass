@@ -1,5 +1,6 @@
-import { useCallback } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Upload, Loader2, PenLine } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { UploadedFile } from "@/types/analysis";
@@ -18,6 +19,11 @@ const ACCEPTED_TYPES = [
 export function UploadCard() {
   const { uploadedFiles, setUploadedFiles, setAnalysisResult, isAnalyzing, setIsAnalyzing } = useAnalysis();
   const { toast } = useToast();
+  
+  const [inputMode, setInputMode] = useState<'upload' | 'text'>('upload');
+  const [conversationText, setConversationText] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +65,7 @@ export function UploadCard() {
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
+      setIsDragOver(false);
       const files = Array.from(e.dataTransfer.files);
       const input = document.createElement("input");
       input.type = "file";
@@ -76,6 +83,16 @@ export function UploadCard() {
     e.preventDefault();
   };
 
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -86,10 +103,10 @@ export function UploadCard() {
   };
 
   const handleRun = async () => {
-    if (uploadedFiles.length === 0) {
+    if (uploadedFiles.length === 0 && !conversationText.trim()) {
       toast({
-        title: "No files uploaded",
-        description: "Please upload at least one conversation file.",
+        title: "No content to analyze",
+        description: "Please upload a file or type your conversation.",
         variant: "destructive",
       });
       return;
@@ -106,15 +123,14 @@ export function UploadCard() {
         imageBase64 = await fileToBase64(imageFile.file);
       }
 
-      // Combine any extracted text
-      const conversationText = uploadedFiles
-        .map((f) => f.extractedText)
-        .filter(Boolean)
-        .join("\n\n");
+      // Use typed text in text mode, or extracted text from files
+      const textToAnalyze = inputMode === 'text' 
+        ? conversationText 
+        : uploadedFiles.map((f) => f.extractedText).filter(Boolean).join("\n\n");
 
       const { data, error } = await supabase.functions.invoke("analyze-conversation", {
         body: {
-          conversationText: conversationText || "Please extract and analyze the conversation from the uploaded image.",
+          conversationText: textToAnalyze || "Please extract and analyze the conversation from the uploaded image.",
           imageBase64,
         },
       });
@@ -145,38 +161,70 @@ export function UploadCard() {
   };
 
   return (
-    <div
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      className="relative border-2 border-dashed border-muted-foreground/30 rounded-full px-6 py-4 flex items-center justify-between gap-4 bg-card transition-colors hover:border-muted-foreground/50 flex-1"
-    >
-      <div className="flex items-center gap-4 flex-1">
-        <Upload className="h-10 w-10 text-muted-foreground/50" />
-        <div>
-          <p className="text-muted-foreground">Upload png, jpeg, pdf, doc.</p>
-          <input
-            type="file"
-            multiple
-            accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-        </div>
-      </div>
-      <Button
-        onClick={handleRun}
-        disabled={isAnalyzing || uploadedFiles.length === 0}
-        className="bg-teal hover:bg-teal-hover text-primary-foreground font-medium px-8 rounded-full"
+    <div className="flex flex-col flex-1">
+      <button
+        type="button"
+        onClick={() => setInputMode(inputMode === 'upload' ? 'text' : 'upload')}
+        className="text-sm text-muted-foreground hover:text-teal transition-colors mb-2 underline text-left w-fit"
       >
-        {isAnalyzing ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            Analyzing...
-          </>
-        ) : (
-          "Run"
+        {inputMode === 'upload' ? 'Or write it in' : 'Or upload a file'}
+      </button>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        className={cn(
+          "relative border-2 border-dashed rounded-full px-6 py-4 flex items-center justify-between gap-4 bg-card transition-colors flex-1",
+          isDragOver || isFocused
+            ? "border-teal"
+            : "border-muted-foreground/30 hover:border-teal/50"
         )}
-      </Button>
+      >
+        <div className="flex items-center gap-4 flex-1">
+          {inputMode === 'upload' ? (
+            <>
+              <Upload className="h-10 w-10 text-muted-foreground/50 flex-shrink-0" />
+              <div>
+                <p className="text-muted-foreground">Upload png, jpeg, pdf, doc.</p>
+                <input
+                  type="file"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <PenLine className="h-10 w-10 text-muted-foreground/50 flex-shrink-0" />
+              <textarea
+                value={conversationText}
+                onChange={(e) => setConversationText(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder="Paste or type your conversation here..."
+                className="flex-1 bg-transparent resize-none outline-none text-sm min-h-[40px] max-h-[80px] text-foreground placeholder:text-muted-foreground"
+              />
+            </>
+          )}
+        </div>
+        <Button
+          onClick={handleRun}
+          disabled={isAnalyzing || (uploadedFiles.length === 0 && !conversationText.trim())}
+          className="bg-teal hover:bg-teal-hover text-primary-foreground font-medium px-8 rounded-full"
+        >
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Analyzing...
+            </>
+          ) : (
+            "Run"
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
