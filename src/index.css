@@ -106,7 +106,7 @@
 
 @layer base {
   html {
-    font-size: 120%;
+    font-size: 100%;
   }
 
   * {
