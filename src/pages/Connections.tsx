@@ -211,7 +211,8 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full">
+      <div className="h-full flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
 
         {loading ? (
@@ -224,7 +225,7 @@ export default function Connections() {
           </div>
         ) : hasAnyMultipleReports ? (
           /* 3-Column Layout when any person has multiple reports */
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-1 min-h-0">
             {/* Column 1: Person names */}
             <div className="w-40 shrink-0 space-y-1.5 connections-person-list">
               {personNames.map((personName) => {
@@ -361,7 +362,7 @@ export default function Connections() {
                   </div>
                   
                   {/* Report content - no scrolling */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0">
                     <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-4 pt-3 border-t border-border">
@@ -387,7 +388,7 @@ export default function Connections() {
           </div>
         ) : (
           /* 2-Column Layout when all persons have single reports */
-          <div className="flex gap-6 flex-col lg:flex-row">
+          <div className="flex gap-6 flex-col lg:flex-row flex-1 min-h-0">
             {/* List */}
             <div className="lg:w-1/3 space-y-3 connections-person-list">
               {connections.map((conn) => {
@@ -476,7 +477,7 @@ export default function Connections() {
                   </div>
                   
                   {/* Report content - no scrolling */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-h-0">
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-6 pt-4 border-t border-border">
@@ -501,6 +502,7 @@ export default function Connections() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </AppLayout>
   );
