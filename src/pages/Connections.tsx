@@ -175,6 +175,32 @@ export default function Connections() {
     }
   };
 
+  const handleExportPDF = () => {
+    if (!selectedConnection) return;
+    
+    // Get the date for the filename (prefer analysis_date, fallback to created_at)
+    const reportDate = selectedConnection.analysis_date 
+      ? format(new Date(selectedConnection.analysis_date), "yyyy-MM-dd")
+      : format(new Date(selectedConnection.created_at), "yyyy-MM-dd");
+    
+    // Create filename from person name and date
+    const pdfTitle = `${selectedConnection.person_name} - ${reportDate}`;
+    
+    // Save original title
+    const originalTitle = document.title;
+    
+    // Set custom title (browser uses this as default PDF filename)
+    document.title = pdfTitle;
+    
+    // Trigger print
+    window.print();
+    
+    // Restore original title after a short delay
+    setTimeout(() => {
+      document.title = originalTitle;
+    }, 100);
+  };
+
   return (
     <AppLayout>
       <div className="h-full flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
@@ -287,7 +313,7 @@ export default function Connections() {
                 <>
                   <div className="flex justify-end mb-4 no-print">
                     <Button 
-                      onClick={() => window.print()} 
+                      onClick={handleExportPDF} 
                       variant="outline"
                       className="flex items-center gap-2"
                     >
@@ -392,7 +418,7 @@ export default function Connections() {
                 <>
                   <div className="flex justify-end mb-4 no-print">
                     <Button 
-                      onClick={() => window.print()} 
+                      onClick={handleExportPDF} 
                       variant="outline"
                       className="flex items-center gap-2"
                     >
