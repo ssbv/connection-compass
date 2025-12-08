@@ -212,7 +212,7 @@ export default function Connections() {
   return (
     <AppLayout>
       <div className="h-full flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
-        <h1 className="text-2xl font-semibold text-foreground mb-6 shrink-0 connections-title">Connections</h1>
+        <h1 className="text-xl font-semibold text-foreground mb-4 shrink-0 connections-title">Connections</h1>
 
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -224,9 +224,9 @@ export default function Connections() {
           </div>
         ) : hasAnyMultipleReports ? (
           /* 3-Column Layout when any person has multiple reports */
-          <div className="flex gap-4 flex-1 min-h-0">
+          <div className="flex gap-3 flex-1 min-h-0">
             {/* Column 1: Person names */}
-            <div className="w-48 shrink-0 space-y-2 overflow-y-auto connections-person-list">
+            <div className="w-40 shrink-0 space-y-1.5 overflow-y-auto connections-person-list">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
                 const averageScore = calculateAverageScore(personConnections);
@@ -236,32 +236,32 @@ export default function Connections() {
                     key={personName}
                     onClick={() => handlePersonClick(personName)}
                     className={cn(
-                      "p-3 rounded-xl border cursor-pointer transition-colors",
+                      "p-2 rounded-lg border cursor-pointer transition-colors",
                       selectedPerson === personName
                         ? "bg-teal/10 border-teal"
                         : "bg-card border-border hover:bg-panel"
                     )}
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
                         {averageTrafficLight && (
                           <div
                             className={cn(
-                              "w-2.5 h-2.5 rounded-full shrink-0",
+                              "w-2 h-2 rounded-full shrink-0",
                               getTrafficLightColor(averageTrafficLight)
                             )}
                           />
                         )}
-                        <p className="font-medium text-foreground text-sm truncate">{personName}</p>
+                        <p className="font-medium text-foreground text-xs truncate">{personName}</p>
                       </div>
                       {averageScore !== undefined && (
-                        <span className="text-xs font-semibold text-foreground shrink-0 pl-2 mr-1">
-                          {averageScore} / 100
+                        <span className="text-[10px] font-semibold text-foreground shrink-0">
+                          {averageScore}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {personConnections.length} report{personConnections.length > 1 ? "s" : ""} · avg
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      {personConnections.length} report{personConnections.length > 1 ? "s" : ""}
                     </p>
                   </div>
                 );
@@ -269,37 +269,37 @@ export default function Connections() {
             </div>
 
             {/* Column 2: Report instances for selected person */}
-            <div className="w-44 shrink-0 overflow-y-auto connections-report-list">
+            <div className="w-32 shrink-0 overflow-y-auto connections-report-list">
               {selectedPerson && groupedConnections[selectedPerson] ? (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {groupedConnections[selectedPerson].map((conn) => {
                     const analysis = conn.analysis_data as AnalysisResult | null;
                     const displayDate = conn.analysis_date
-                      ? format(new Date(conn.analysis_date), "MMM d, yyyy")
-                      : format(new Date(conn.created_at), "MMM d, yyyy");
+                      ? format(new Date(conn.analysis_date), "MMM d")
+                      : format(new Date(conn.created_at), "MMM d");
                     return (
                       <div
                         key={conn.id}
                         onClick={() => handleConnectionClick(conn)}
                         className={cn(
-                          "p-3 rounded-xl border cursor-pointer transition-colors relative group",
+                          "p-2 rounded-lg border cursor-pointer transition-colors",
                           selectedConnection?.id === conn.id
                             ? "bg-teal/20 border-teal"
                             : "bg-card border-border hover:bg-panel"
                         )}
                       >
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-foreground">{displayDate}</p>
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-xs font-medium text-foreground">{displayDate}</p>
                           {analysis?.meta && (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
                               <div
                                 className={cn(
-                                  "w-2.5 h-2.5 rounded-full",
+                                  "w-2 h-2 rounded-full",
                                   getTrafficLightColor(analysis.meta.traffic_light)
                                 )}
                               />
-                              <span className="text-sm font-semibold text-foreground">
-                                {analysis.meta.overall_conversation_health_score}/100
+                              <span className="text-xs font-semibold text-foreground">
+                                {analysis.meta.overall_conversation_health_score}
                               </span>
                             </div>
                           )}
@@ -309,8 +309,8 @@ export default function Connections() {
                   })}
                 </div>
               ) : (
-                <div className="bg-panel rounded-xl p-4 text-center">
-                  <p className="text-sm text-muted-foreground">Select a person</p>
+                <div className="bg-panel rounded-lg p-3 text-center">
+                  <p className="text-xs text-muted-foreground">Select a person</p>
                 </div>
               )}
             </div>
@@ -319,17 +319,18 @@ export default function Connections() {
             <div className="flex-1 min-w-0 overflow-y-auto connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
-                  <div className="flex justify-end mb-4 no-print">
+                  <div className="flex justify-end mb-2 no-print">
                     <Button 
                       onClick={handleExportPDF} 
                       variant="outline"
-                      className="flex items-center gap-2"
+                      size="sm"
+                      className="flex items-center gap-1.5 text-xs"
                     >
-                      <Download className="w-4 h-4" />
+                      <Download className="w-3 h-3" />
                       Export PDF
                     </Button>
                   </div>
-                  <div className="bg-panel rounded-xl p-6">
+                  <div className="bg-panel rounded-lg p-4">
                     {/* Print-only header */}
                     <div className="hidden connections-print-header">
                       <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
@@ -338,18 +339,18 @@ export default function Connections() {
                         Save as: "{getExportFilename()}.pdf"
                       </p>
                     </div>
-                    <div className="flex items-center justify-between mb-4 no-print">
-                      <h2 className="text-lg font-medium text-foreground">
+                    <div className="flex items-center justify-between mb-3 no-print">
+                      <h2 className="text-base font-medium text-foreground">
                         {selectedConnection.person_name}
                       </h2>
                       {selectedConnection.analysis_date && (
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
                         </p>
                       )}
                     </div>
                     {selectedConnection.notes && (
-                      <p className="text-sm text-muted-foreground mb-4 italic">
+                      <p className="text-xs text-muted-foreground mb-3 italic">
                         "{selectedConnection.notes}"
                       </p>
                     )}
@@ -357,22 +358,22 @@ export default function Connections() {
                       <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                     )}
                     <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                    <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                    <div className="flex justify-end mt-4 pt-3 border-t border-border">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteReport(selectedConnection.id)}
-                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                        className="text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Report
+                        <Trash2 className="h-3 w-3 mr-1.5" />
+                        Delete
                       </Button>
                     </div>
                   </div>
                 </>
               ) : (
-                <div className="bg-panel rounded-xl p-6 text-center h-full flex items-center justify-center">
-                  <p className="text-muted-foreground">Select a report to view details</p>
+                <div className="bg-panel rounded-lg p-4 text-center h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">Select a report to view details</p>
                 </div>
               )}
             </div>

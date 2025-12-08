@@ -42,9 +42,9 @@ function PersonPanelStandalone({
   };
 
   return (
-    <div className="bg-card rounded-xl p-6 relative flex-1 min-w-0">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium text-foreground">{title}</h3>
+    <div className="bg-card rounded-lg p-4 relative flex-1 min-w-0">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium text-foreground">{title}</h3>
         <button
           onClick={() => setShowExamples(!showExamples)}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -54,7 +54,7 @@ function PersonPanelStandalone({
       </div>
 
       {showExamples ? (
-        <div className="space-y-3 max-h-72 overflow-y-auto">
+        <div className="space-y-2 max-h-56 overflow-y-auto">
           {getAllExamples().length > 0 ? (
             getAllExamples().map((example, i) => (
               <div
@@ -76,19 +76,19 @@ function PersonPanelStandalone({
           )}
         </div>
       ) : (
-        <div className="space-y-4">
-          <div className="h-48">
+        <div className="space-y-3">
+          <div className="h-36">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={radarData}>
                 <PolarGrid stroke="hsl(var(--border))" />
                 <PolarAngleAxis
                   dataKey="dimension"
-                  tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
                 />
                 <PolarRadiusAxis
                   angle={30}
                   domain={[0, 100]}
-                  tick={{ fontSize: 8, fill: "hsl(var(--muted-foreground))" }}
+                  tick={{ fontSize: 7, fill: "hsl(var(--muted-foreground))" }}
                 />
                 <Radar
                   name={title}
@@ -100,14 +100,14 @@ function PersonPanelStandalone({
               </RadarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-sm text-foreground">{person.narrative_summary}</p>
+          <p className="text-xs text-foreground">{person.narrative_summary}</p>
           {person.strengths.length > 0 && (
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Strengths</span>
-              <ul className="mt-1 space-y-1">
+              <span className="text-[10px] font-medium text-muted-foreground">Strengths</span>
+              <ul className="mt-0.5 space-y-0.5">
                 {person.strengths.map((s, i) => (
-                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                    <span className="text-success mt-0.5">✓</span>
+                  <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
+                    <span className="text-success mt-0.5 text-[10px]">✓</span>
                     {s}
                   </li>
                 ))}
@@ -116,11 +116,11 @@ function PersonPanelStandalone({
           )}
           {person.risks.length > 0 && (
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Risks</span>
-              <ul className="mt-1 space-y-1">
+              <span className="text-[10px] font-medium text-muted-foreground">Risks</span>
+              <ul className="mt-0.5 space-y-0.5">
                 {person.risks.map((r, i) => (
-                  <li key={i} className="text-sm text-foreground flex items-start gap-2">
-                    <span className="text-warning mt-0.5">⚠</span>
+                  <li key={i} className="text-xs text-foreground flex items-start gap-1.5">
+                    <span className="text-warning mt-0.5 text-[10px]">⚠</span>
                     {r}
                   </li>
                 ))}
@@ -187,11 +187,11 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
   };
 
   return (
-    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-12rem)]">
+    <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-10rem)]">
       {/* Overall Results */}
       <section>
-        <h2 className="text-lg font-medium text-foreground mb-3">Overall Results</h2>
-        <div className="bg-card rounded-xl p-5 relative">
+        <h2 className="text-sm font-medium text-foreground mb-2">Overall Results</h2>
+        <div className="bg-card rounded-lg p-4 relative">
           <button
             onClick={() => setShowOverallExamples(!showOverallExamples)}
             className="absolute top-4 right-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -200,8 +200,8 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
           </button>
 
           {showOverallExamples ? (
-            <div className="space-y-3">
-              <h3 className="font-medium text-foreground">Supporting Examples</h3>
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-foreground">Supporting Examples</h3>
               {getOverallExamples().map((example, i) => (
                 <div
                   key={i}
@@ -219,25 +219,25 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
               ))}
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <span className="text-3xl font-bold text-foreground">{meta.overall_conversation_health_score}</span>
-                <span className="text-sm text-muted-foreground">/ 100</span>
-                <div className={cn("w-4 h-4 rounded-full", getTrafficLightColor(meta.traffic_light))} />
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl font-bold text-foreground">{meta.overall_conversation_health_score}</span>
+                <span className="text-xs text-muted-foreground">/ 100</span>
+                <div className={cn("w-3 h-3 rounded-full", getTrafficLightColor(meta.traffic_light))} />
               </div>
-              <p className="text-foreground text-sm">{meta.summary}</p>
-              <div className="grid grid-cols-3 gap-4">
+              <p className="text-foreground text-xs">{meta.summary}</p>
+              <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <span className="text-xs text-muted-foreground">Mutual Respect</span>
-                  <p className="text-sm font-medium text-foreground capitalize">{overall_results.mutual_respect}</p>
+                  <span className="text-[10px] text-muted-foreground">Mutual Respect</span>
+                  <p className="text-xs font-medium text-foreground capitalize">{overall_results.mutual_respect}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Power Balance</span>
-                  <p className="text-sm font-medium text-foreground capitalize">{overall_results.power_balance.replace(/_/g, " ")}</p>
+                  <span className="text-[10px] text-muted-foreground">Power Balance</span>
+                  <p className="text-xs font-medium text-foreground capitalize">{overall_results.power_balance.replace(/_/g, " ")}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Consistency</span>
-                  <p className="text-sm font-medium text-foreground capitalize">{overall_results.consistency}</p>
+                  <span className="text-[10px] text-muted-foreground">Consistency</span>
+                  <p className="text-xs font-medium text-foreground capitalize">{overall_results.consistency}</p>
                 </div>
               </div>
               {overall_results.headline_flags.length > 0 && (
@@ -260,11 +260,11 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
 
       {/* Them & You */}
       <section>
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-medium text-foreground">Them</h2>
-          <h2 className="text-lg font-medium text-foreground">You</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-sm font-medium text-foreground">Them</h2>
+          <h2 className="text-sm font-medium text-foreground">You</h2>
         </div>
-        <div className="flex gap-4 flex-col md:flex-row">
+        <div className="flex gap-3 flex-col md:flex-row">
           <PersonPanelStandalone
             person={people.A}
             examples={example_attributions.by_dimension.A}
@@ -280,8 +280,8 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
 
       {/* Dynamics */}
       <section>
-        <h2 className="text-lg font-medium text-foreground mb-3">Dynamics</h2>
-        <div className="bg-card rounded-xl p-5 relative">
+        <h2 className="text-sm font-medium text-foreground mb-2">Dynamics</h2>
+        <div className="bg-card rounded-lg p-4 relative">
           <button
             onClick={() => setShowDynamicsExamples(!showDynamicsExamples)}
             className="absolute top-4 right-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -313,62 +313,62 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
               )}
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-3">
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">Initiation Balance</h4>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 bg-muted rounded-full h-3 overflow-hidden">
+                <h4 className="text-xs font-medium text-foreground mb-1">Initiation Balance</h4>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
                     <div
                       className="bg-teal h-full transition-all"
                       style={{ width: `${dynamics.initiation_balance.initiated_by_A_percent}%` }}
                     />
                   </div>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-[10px] text-muted-foreground">
                     Them: {dynamics.initiation_balance.initiated_by_A_percent}% • You: {dynamics.initiation_balance.initiated_by_B_percent}%
                   </span>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">Emotional Labor</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <h4 className="text-xs font-medium text-foreground mb-1">Emotional Labor</h4>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <span className="text-xs text-muted-foreground">Who repairs more?</span>
-                    <p className="text-sm font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_repairs_more)}</p>
+                    <span className="text-[10px] text-muted-foreground">Who repairs more?</span>
+                    <p className="text-xs font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_repairs_more)}</p>
                   </div>
                   <div>
-                    <span className="text-xs text-muted-foreground">Who clarifies more?</span>
-                    <p className="text-sm font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_clarifies_more)}</p>
+                    <span className="text-[10px] text-muted-foreground">Who clarifies more?</span>
+                    <p className="text-xs font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_clarifies_more)}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">Boundary Interaction</h4>
-                <p className="text-sm text-foreground">{dynamics.boundary_interaction.summary}</p>
+                <h4 className="text-xs font-medium text-foreground mb-1">Boundary Interaction</h4>
+                <p className="text-xs text-foreground">{dynamics.boundary_interaction.summary}</p>
               </div>
 
               <div>
-                <h4 className="text-sm font-medium text-foreground mb-2">Escalation Pattern</h4>
-                <p className="text-sm text-foreground">{dynamics.escalation_pattern.pattern}</p>
+                <h4 className="text-xs font-medium text-foreground mb-1">Escalation Pattern</h4>
+                <p className="text-xs text-foreground">{dynamics.escalation_pattern.pattern}</p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-3 border-t border-border">
                 <div>
-                  <span className="text-xs text-muted-foreground">Who carries connection?</span>
-                  <p className="text-sm font-medium text-foreground">{formatLabel(dynamics.who_carries_connection)}</p>
+                  <span className="text-[10px] text-muted-foreground">Who carries connection?</span>
+                  <p className="text-xs font-medium text-foreground">{formatLabel(dynamics.who_carries_connection)}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Conflict handling</span>
-                  <p className="text-sm font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_repairs_more)}</p>
+                  <span className="text-[10px] text-muted-foreground">Conflict handling</span>
+                  <p className="text-xs font-medium text-foreground">{formatLabel(dynamics.emotional_labor.who_repairs_more)}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Safety</span>
-                  <p className="text-sm font-medium text-foreground truncate">{dynamics.boundary_interaction.summary.substring(0, 25)}...</p>
+                  <span className="text-[10px] text-muted-foreground">Safety</span>
+                  <p className="text-xs font-medium text-foreground truncate">{dynamics.boundary_interaction.summary.substring(0, 25)}...</p>
                 </div>
                 <div>
-                  <span className="text-xs text-muted-foreground">Who adjusts more?</span>
-                  <p className="text-sm font-medium text-foreground">{formatLabel(dynamics.who_adjusts_more)}</p>
+                  <span className="text-[10px] text-muted-foreground">Who adjusts more?</span>
+                  <p className="text-xs font-medium text-foreground">{formatLabel(dynamics.who_adjusts_more)}</p>
                 </div>
               </div>
             </div>
