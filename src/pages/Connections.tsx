@@ -178,7 +178,7 @@ export default function Connections() {
   return (
     <AppLayout>
       <div className="h-full flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
-        <h1 className="text-2xl font-semibold text-foreground mb-6 shrink-0">Connections</h1>
+        <h1 className="text-2xl font-semibold text-foreground mb-6 shrink-0 connections-title">Connections</h1>
 
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -192,7 +192,7 @@ export default function Connections() {
           /* 3-Column Layout when any person has multiple reports */
           <div className="flex gap-4 flex-1 min-h-0">
             {/* Column 1: Person names */}
-            <div className="w-48 shrink-0 space-y-2 overflow-y-auto">
+            <div className="w-48 shrink-0 space-y-2 overflow-y-auto connections-person-list">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
                 const averageScore = calculateAverageScore(personConnections);
@@ -235,7 +235,7 @@ export default function Connections() {
             </div>
 
             {/* Column 2: Report instances for selected person */}
-            <div className="w-44 shrink-0 overflow-y-auto">
+            <div className="w-44 shrink-0 overflow-y-auto connections-report-list">
               {selectedPerson && groupedConnections[selectedPerson] ? (
                 <div className="space-y-2">
                   {groupedConnections[selectedPerson].map((conn) => {
@@ -282,7 +282,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 overflow-y-auto">
+            <div className="flex-1 min-w-0 overflow-y-auto connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print">
@@ -296,7 +296,12 @@ export default function Connections() {
                     </Button>
                   </div>
                   <div className="bg-panel rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    {/* Print-only header */}
+                    <div className="hidden connections-print-header">
+                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                    </div>
+                    <div className="flex items-center justify-between mb-4 no-print">
                       <h2 className="text-lg font-medium text-foreground">
                         {selectedConnection.person_name}
                       </h2>
@@ -339,7 +344,7 @@ export default function Connections() {
           /* 2-Column Layout when all persons have single reports */
           <div className="flex gap-6 flex-col lg:flex-row flex-1 min-h-0">
             {/* List */}
-            <div className="lg:w-1/3 space-y-3 overflow-y-auto">
+            <div className="lg:w-1/3 space-y-3 overflow-y-auto connections-person-list">
               {connections.map((conn) => {
                 const analysis = conn.analysis_data as AnalysisResult | null;
                 return (
@@ -382,7 +387,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 overflow-y-auto">
+            <div className="lg:w-2/3 overflow-y-auto connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print">
@@ -396,7 +401,12 @@ export default function Connections() {
                     </Button>
                   </div>
                   <div className="bg-panel rounded-xl p-6">
-                    <div className="flex items-center justify-between mb-4">
+                    {/* Print-only header */}
+                    <div className="hidden connections-print-header">
+                      <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
+                      <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                    </div>
+                    <div className="flex items-center justify-between mb-4 no-print">
                       <h2 className="text-lg font-medium text-foreground">
                         {selectedConnection.person_name}
                       </h2>
