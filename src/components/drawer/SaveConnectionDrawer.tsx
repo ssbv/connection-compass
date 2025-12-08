@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,11 +31,17 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
 
   const [isExisting, setIsExisting] = useState(false);
   const [connections, setConnections] = useState<Connection[]>([]);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
+  const [selectedPersonName, setSelectedPersonName] = useState<string>("");
   const [userName, setUserName] = useState("");
   const [date, setDate] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Get unique person names for the dropdown
+  const uniquePersonNames = useMemo(() => {
+    const names = new Set(connections.map(c => c.person_name));
+    return Array.from(names);
+  }, [connections]);
 
   useEffect(() => {
     if (open && user) {
@@ -57,7 +63,6 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
       return;
     }
 
-    // Type the data correctly
     setConnections((data || []) as unknown as Connection[]);
   };
 
@@ -76,22 +81,21 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
     setSaving(true);
 
     try {
-      if (isExisting && selectedConnectionId) {
-        // Update existing connection
-        const { error } = await supabase
-          .from("connections")
-          .update({
-            analysis_data: JSON.parse(JSON.stringify(analysisResult)),
-            notes: notes || null,
-            analysis_date: date || null,
-          })
-          .eq("id", selectedConnectionId);
+      if (isExisting && selectedPersonName) {
+        // Insert a NEW record with the same person_name (preserves history!)
+        const { error } = await supabase.from("connections").insert([{
+          user_id: user.id,
+          person_name: selectedPersonName,
+          analysis_data: JSON.parse(JSON.stringify(analysisResult)),
+          notes: notes || null,
+          analysis_date: date || null,
+        }]);
 
         if (error) throw error;
 
         toast({
-          title: "Connection updated",
-          description: "The analysis has been saved to the existing connection.",
+          title: "Analysis saved",
+          description: "A new analysis has been added to this connection.",
         });
       } else {
         // Create new connection
@@ -115,7 +119,7 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
       setUserName("");
       setDate("");
       setNotes("");
-      setSelectedConnectionId("");
+      setSelectedPersonName("");
     } catch (error) {
       console.error("Error saving connection:", error);
       toast({
@@ -171,14 +175,14 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
             {isExisting ? (
               <div className="space-y-2">
                 <Label className="text-sm text-foreground">Person:</Label>
-                <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
+                <Select value={selectedPersonName} onValueChange={setSelectedPersonName}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a person" />
                   </SelectTrigger>
                   <SelectContent>
-                    {connections.map((conn) => (
-                      <SelectItem key={conn.id} value={conn.id}>
-                        {conn.person_name}
+                    {uniquePersonNames.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -218,7 +222,7 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
           {/* Save button */}
           <Button
             onClick={handleSave}
-            disabled={saving || (!isExisting && !userName.trim()) || (isExisting && !selectedConnectionId)}
+            disabled={saving || (!isExisting && !userName.trim()) || (isExisting && !selectedPersonName)}
             className="w-full bg-teal hover:bg-teal-hover text-primary-foreground mt-6"
           >
             {saving ? "Saving..." : "Save"}
