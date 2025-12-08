@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CloudUpload, Loader2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,21 @@ const Index = () => {
     setAnalysisResult, 
     isAnalyzing, 
     setIsAnalyzing,
-    hasResults 
+    hasResults,
+    pendingAuthSave,
+    setPendingAuthSave
   } = useAnalysis();
   const { toast } = useToast();
   const { user } = useAuth();
   const [saveDrawerOpen, setSaveDrawerOpen] = useState(false);
+
+  // Auto-open save drawer when user logs in with pending analysis
+  useEffect(() => {
+    if (user && hasResults && pendingAuthSave) {
+      setSaveDrawerOpen(true);
+      setPendingAuthSave(false);
+    }
+  }, [user, hasResults, pendingAuthSave, setPendingAuthSave]);
 
   const scrollToSection = (sectionId: string) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
@@ -276,7 +286,11 @@ const Index = () => {
           {!user && hasResults && (
             <div className="mt-4">
               <p className="text-sm text-muted-foreground">
-                <Link to="/auth" className="text-teal-500 hover:underline font-medium">
+                <Link 
+                  to="/auth" 
+                  onClick={() => setPendingAuthSave(true)}
+                  className="text-teal-500 hover:underline font-medium"
+                >
                   Log in
                 </Link>{" "}
                 to save these results to your connections.
