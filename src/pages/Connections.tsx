@@ -144,7 +144,7 @@ export default function Connections() {
                       </div>
                       {latestAnalysis?.meta?.overall_conversation_health_score !== undefined && (
                         <span className="text-xs font-semibold text-foreground shrink-0 pl-2 mr-1">
-                          {latestAnalysis.meta.overall_conversation_health_score}/100
+                          {latestAnalysis.meta.overall_conversation_health_score} / 100
                         </span>
                       )}
                     </div>
@@ -268,7 +268,7 @@ export default function Connections() {
                       </div>
                       {analysis?.meta?.overall_conversation_health_score !== undefined && (
                         <span className="text-sm font-semibold text-foreground ml-auto pl-4 mr-1">
-                          {analysis.meta.overall_conversation_health_score}/100
+                          {analysis.meta.overall_conversation_health_score} / 100
                         </span>
                       )}
                     </div>
