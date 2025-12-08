@@ -9,6 +9,8 @@ interface AnalysisContextType {
   isAnalyzing: boolean;
   setIsAnalyzing: (loading: boolean) => void;
   hasResults: boolean;
+  pendingAuthSave: boolean;
+  setPendingAuthSave: (pending: boolean) => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined);
@@ -17,6 +19,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [pendingAuthSave, setPendingAuthSave] = useState(false);
 
   const hasResults = analysisResult !== null;
 
@@ -30,6 +33,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         isAnalyzing,
         setIsAnalyzing,
         hasResults,
+        pendingAuthSave,
+        setPendingAuthSave,
       }}
     >
       {children}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useAnalysis } from "@/contexts/AnalysisContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,14 +15,20 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
 
   const { signIn, signUp, user } = useAuth();
+  const { pendingAuthSave, hasResults } = useAnalysis();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     if (user) {
-      navigate("/dashboard");
+      // If user completed an analysis before logging in, redirect back to save it
+      if (pendingAuthSave && hasResults) {
+        navigate("/");
+      } else {
+        navigate("/dashboard");
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, pendingAuthSave, hasResults]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
