@@ -211,9 +211,8 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="fixed inset-0 left-44 flex flex-col bg-background">
-        <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0 overflow-hidden">
-        <h1 className="text-xl font-semibold text-foreground mb-4 shrink-0 connections-title">Connections</h1>
+      <div className="p-6 lg:p-10 max-w-7xl mx-auto w-full">
+        <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
 
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -225,9 +224,9 @@ export default function Connections() {
           </div>
         ) : hasAnyMultipleReports ? (
           /* 3-Column Layout when any person has multiple reports */
-          <div className="flex gap-3 flex-1 min-h-0">
+          <div className="flex gap-3">
             {/* Column 1: Person names */}
-            <div className="w-40 shrink-0 space-y-1.5 overflow-y-auto connections-person-list">
+            <div className="w-40 shrink-0 space-y-1.5 connections-person-list">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
                 const averageScore = calculateAverageScore(personConnections);
@@ -270,7 +269,7 @@ export default function Connections() {
             </div>
 
             {/* Column 2: Report instances for selected person */}
-            <div className="w-32 shrink-0 overflow-y-auto connections-report-list">
+            <div className="w-32 shrink-0 connections-report-list">
               {selectedPerson && groupedConnections[selectedPerson] ? (
                 <div className="space-y-1.5">
                   {groupedConnections[selectedPerson].map((conn) => {
@@ -388,9 +387,9 @@ export default function Connections() {
           </div>
         ) : (
           /* 2-Column Layout when all persons have single reports */
-          <div className="flex gap-6 flex-col lg:flex-row flex-1 min-h-0">
+          <div className="flex gap-6 flex-col lg:flex-row">
             {/* List */}
-            <div className="lg:w-1/3 space-y-3 overflow-y-auto connections-person-list">
+            <div className="lg:w-1/3 space-y-3 connections-person-list">
               {connections.map((conn) => {
                 const analysis = conn.analysis_data as AnalysisResult | null;
                 return (
@@ -502,7 +501,6 @@ export default function Connections() {
             </div>
           </div>
         )}
-        </div>
       </div>
     </AppLayout>
   );
