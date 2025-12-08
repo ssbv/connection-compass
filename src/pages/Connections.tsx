@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 export default function Connections() {
   const { user } = useAuth();
@@ -284,38 +284,50 @@ export default function Connections() {
             {/* Column 3: Full Report */}
             <div className="flex-1 min-w-0 overflow-y-auto">
               {selectedConnection?.analysis_data ? (
-                <div className="bg-panel rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium text-foreground">
-                      {selectedConnection.person_name}
-                    </h2>
-                    {selectedConnection.analysis_date && (
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
-                      </p>
-                    )}
-                  </div>
-                  {selectedConnection.notes && (
-                    <p className="text-sm text-muted-foreground mb-4 italic">
-                      "{selectedConnection.notes}"
-                    </p>
-                  )}
-                  {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                    <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
-                  )}
-                  <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                  <div className="flex justify-end mt-6 pt-4 border-t border-border">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteReport(selectedConnection.id)}
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                <>
+                  <div className="flex justify-end mb-4 no-print">
+                    <Button 
+                      onClick={() => window.print()} 
+                      variant="outline"
+                      className="flex items-center gap-2"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Report
+                      <Download className="w-4 h-4" />
+                      Export PDF
                     </Button>
                   </div>
-                </div>
+                  <div className="bg-panel rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-medium text-foreground">
+                        {selectedConnection.person_name}
+                      </h2>
+                      {selectedConnection.analysis_date && (
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                        </p>
+                      )}
+                    </div>
+                    {selectedConnection.notes && (
+                      <p className="text-sm text-muted-foreground mb-4 italic">
+                        "{selectedConnection.notes}"
+                      </p>
+                    )}
+                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                    )}
+                    <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                    <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteReport(selectedConnection.id)}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Report
+                      </Button>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="bg-panel rounded-xl p-6 text-center h-full flex items-center justify-center">
                   <p className="text-muted-foreground">Select a report to view details</p>
@@ -372,38 +384,50 @@ export default function Connections() {
             {/* Full Report View */}
             <div className="lg:w-2/3 overflow-y-auto">
               {selectedConnection?.analysis_data ? (
-                <div className="bg-panel rounded-xl p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-medium text-foreground">
-                      {selectedConnection.person_name}
-                    </h2>
-                    {selectedConnection.analysis_date && (
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
-                      </p>
-                    )}
-                  </div>
-                  {selectedConnection.notes && (
-                    <p className="text-sm text-muted-foreground mb-4 italic">
-                      "{selectedConnection.notes}"
-                    </p>
-                  )}
-                  {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
-                    <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
-                  )}
-                  <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                  <div className="flex justify-end mt-6 pt-4 border-t border-border">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteReport(selectedConnection.id)}
-                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                <>
+                  <div className="flex justify-end mb-4 no-print">
+                    <Button 
+                      onClick={() => window.print()} 
+                      variant="outline"
+                      className="flex items-center gap-2"
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Report
+                      <Download className="w-4 h-4" />
+                      Export PDF
                     </Button>
                   </div>
-                </div>
+                  <div className="bg-panel rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-medium text-foreground">
+                        {selectedConnection.person_name}
+                      </h2>
+                      {selectedConnection.analysis_date && (
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
+                        </p>
+                      )}
+                    </div>
+                    {selectedConnection.notes && (
+                      <p className="text-sm text-muted-foreground mb-4 italic">
+                        "{selectedConnection.notes}"
+                      </p>
+                    )}
+                    {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                      <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                    )}
+                    <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
+                    <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteReport(selectedConnection.id)}
+                        className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Report
+                      </Button>
+                    </div>
+                  </div>
+                </>
               ) : (
                 <div className="bg-panel rounded-xl p-6 text-center">
                   <p className="text-muted-foreground">Select a connection to view full report</p>
