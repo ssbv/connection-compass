@@ -175,10 +175,10 @@ export function UploadCard() {
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         className={cn(
-          "relative border-2 border-dashed rounded-full px-6 py-4 flex items-center justify-between gap-4 bg-card transition-colors flex-1",
+          "relative border-[3px] border-dashed rounded-full px-6 py-4 flex items-center justify-between gap-4 bg-card transition-colors flex-1",
           isDragOver || isFocused
             ? "border-teal"
-            : "border-muted-foreground/30 hover:border-teal/50"
+            : "border-muted-foreground/40 hover:border-teal"
         )}
       >
         <div className="flex items-center gap-4 flex-1">
