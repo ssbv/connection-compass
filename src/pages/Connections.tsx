@@ -4,15 +4,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, AnalysisResult } from "@/types/analysis";
 import { formatDistanceToNow, format } from "date-fns";
-import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 
 export default function Connections() {
   const { user } = useAuth();
-  const { toast } = useToast();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
@@ -60,26 +56,6 @@ export default function Connections() {
     return personNames.some((name) => groupedConnections[name].length > 1);
   }, [personNames, groupedConnections]);
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("connections").delete().eq("id", id);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete connection.",
-        variant: "destructive",
-      });
-    } else {
-      setConnections(connections.filter((c) => c.id !== id));
-      if (selectedConnection?.id === id) {
-        setSelectedConnection(null);
-      }
-      toast({
-        title: "Deleted",
-        description: "Connection removed successfully.",
-      });
-    }
-  };
 
   const getTrafficLightColor = (light?: string) => {
     switch (light) {
@@ -145,16 +121,23 @@ export default function Connections() {
                         : "bg-card border-border hover:bg-panel"
                     )}
                   >
-                    <div className="flex items-center gap-2">
-                      {latestAnalysis?.meta?.traffic_light && (
-                        <div
-                          className={cn(
-                            "w-2.5 h-2.5 rounded-full shrink-0",
-                            getTrafficLightColor(latestAnalysis.meta.traffic_light)
-                          )}
-                        />
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        {latestAnalysis?.meta?.traffic_light && (
+                          <div
+                            className={cn(
+                              "w-2.5 h-2.5 rounded-full shrink-0",
+                              getTrafficLightColor(latestAnalysis.meta.traffic_light)
+                            )}
+                          />
+                        )}
+                        <p className="font-medium text-foreground text-sm truncate">{personName}</p>
+                      </div>
+                      {latestAnalysis?.meta?.overall_conversation_health_score !== undefined && (
+                        <span className="text-xs font-semibold text-foreground shrink-0">
+                          {latestAnalysis.meta.overall_conversation_health_score}/100
+                        </span>
                       )}
-                      <p className="font-medium text-foreground text-sm truncate">{personName}</p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {personConnections.length} report{personConnections.length > 1 ? "s" : ""}
@@ -185,33 +168,20 @@ export default function Connections() {
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{displayDate}</p>
-                            {analysis?.meta && (
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-lg font-bold text-foreground">
-                                  {analysis.meta.overall_conversation_health_score}
-                                </span>
-                                <div
-                                  className={cn(
-                                    "w-2.5 h-2.5 rounded-full",
-                                    getTrafficLightColor(analysis.meta.traffic_light)
-                                  )}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(conn.id);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive h-8 w-8"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <p className="text-sm font-medium text-foreground">{displayDate}</p>
+                          {analysis?.meta && (
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={cn(
+                                  "w-2.5 h-2.5 rounded-full",
+                                  getTrafficLightColor(analysis.meta.traffic_light)
+                                )}
+                              />
+                              <span className="text-sm font-semibold text-foreground">
+                                {analysis.meta.overall_conversation_health_score}/100
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -287,17 +257,11 @@ export default function Connections() {
                           </p>
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(conn.id);
-                        }}
-                        className="text-muted-foreground hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {analysis?.meta?.overall_conversation_health_score !== undefined && (
+                        <span className="text-sm font-semibold text-foreground">
+                          {analysis.meta.overall_conversation_health_score}/100
+                        </span>
+                      )}
                     </div>
                   </div>
                 );
