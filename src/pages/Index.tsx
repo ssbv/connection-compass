@@ -183,7 +183,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex w-full">
       {/* Sidebar - Fixed full height */}
-      <aside className="fixed top-0 left-0 h-screen w-64 bg-sidebar flex flex-col border-r border-border z-40">
+      <aside className="fixed top-0 left-0 h-screen w-56 bg-sidebar flex flex-col border-r border-border z-40">
         <div className="p-4">
           <span className="text-sm font-medium text-sidebar-foreground">LOGO</span>
         </div>
@@ -234,7 +234,7 @@ const Index = () => {
       </aside>
 
       {/* Main Content - Offset for fixed sidebar */}
-      <main className="flex-1 ml-64 bg-background overflow-y-auto">
+      <main className="flex-1 ml-56 bg-background overflow-y-auto">
         <div className="p-8 max-w-6xl mx-auto">
           {/* Print Header - Only visible when printing */}
           <div className="hidden print-header mb-8 text-center border-b border-border pb-6">
