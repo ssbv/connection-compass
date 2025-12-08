@@ -212,7 +212,7 @@ export default function Connections() {
   return (
     <AppLayout>
       <div className="fixed inset-0 left-44 flex flex-col bg-background">
-        <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 shrink-0 connections-title">Connections</h1>
 
         {loading ? (
@@ -317,7 +317,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-2 no-print shrink-0">
@@ -433,7 +433,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 flex flex-col connections-report-column">
+            <div className="lg:w-2/3 flex flex-col connections-report-column overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print shrink-0">
