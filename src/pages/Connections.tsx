@@ -317,7 +317,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-2 no-print shrink-0">
@@ -433,7 +433,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 flex flex-col connections-report-column">
+            <div className="lg:w-2/3 flex flex-col connections-report-column overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print shrink-0">

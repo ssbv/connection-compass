@@ -187,7 +187,7 @@ export function ConnectionFullReport({ analysis }: ConnectionFullReportProps) {
   };
 
   return (
-    <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-10rem)]">
+    <div className="space-y-4">
       {/* Overall Results */}
       <section>
         <h2 className="text-sm font-medium text-foreground mb-2">Overall Results</h2>
