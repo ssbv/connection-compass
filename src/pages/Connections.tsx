@@ -143,7 +143,7 @@ export default function Connections() {
                         <p className="font-medium text-foreground text-sm truncate">{personName}</p>
                       </div>
                       {latestAnalysis?.meta?.overall_conversation_health_score !== undefined && (
-                        <span className="text-xs font-semibold text-foreground shrink-0 pl-2">
+                        <span className="text-xs font-semibold text-foreground shrink-0 pl-2 mr-1">
                           {latestAnalysis.meta.overall_conversation_health_score}/100
                         </span>
                       )}
@@ -267,7 +267,7 @@ export default function Connections() {
                         </div>
                       </div>
                       {analysis?.meta?.overall_conversation_health_score !== undefined && (
-                        <span className="text-sm font-semibold text-foreground ml-auto pl-4">
+                        <span className="text-sm font-semibold text-foreground ml-auto pl-4 mr-1">
                           {analysis.meta.overall_conversation_health_score}/100
                         </span>
                       )}
