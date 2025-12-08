@@ -177,8 +177,8 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="p-6 lg:p-10 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-semibold text-foreground mb-6">Connections</h1>
+      <div className="h-full flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
+        <h1 className="text-2xl font-semibold text-foreground mb-6 shrink-0">Connections</h1>
 
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -190,9 +190,9 @@ export default function Connections() {
           </div>
         ) : hasAnyMultipleReports ? (
           /* 3-Column Layout when any person has multiple reports */
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-1 min-h-0">
             {/* Column 1: Person names */}
-            <div className="w-48 shrink-0 space-y-2">
+            <div className="w-48 shrink-0 space-y-2 overflow-y-auto">
               {personNames.map((personName) => {
                 const personConnections = groupedConnections[personName];
                 const averageScore = calculateAverageScore(personConnections);
@@ -235,9 +235,9 @@ export default function Connections() {
             </div>
 
             {/* Column 2: Report instances for selected person */}
-            <div className="w-44 shrink-0">
+            <div className="w-44 shrink-0 overflow-y-auto">
               {selectedPerson && groupedConnections[selectedPerson] ? (
-                <div className="space-y-2 max-h-[calc(100vh-12rem)] overflow-y-auto">
+                <div className="space-y-2">
                   {groupedConnections[selectedPerson].map((conn) => {
                     const analysis = conn.analysis_data as AnalysisResult | null;
                     const displayDate = conn.analysis_date
@@ -282,7 +282,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <div className="bg-panel rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -325,9 +325,9 @@ export default function Connections() {
           </div>
         ) : (
           /* 2-Column Layout when all persons have single reports */
-          <div className="flex gap-6 flex-col lg:flex-row">
+          <div className="flex gap-6 flex-col lg:flex-row flex-1 min-h-0">
             {/* List */}
-            <div className="lg:w-1/3 space-y-3">
+            <div className="lg:w-1/3 space-y-3 overflow-y-auto">
               {connections.map((conn) => {
                 const analysis = conn.analysis_data as AnalysisResult | null;
                 return (
@@ -370,7 +370,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3">
+            <div className="lg:w-2/3 overflow-y-auto">
               {selectedConnection?.analysis_data ? (
                 <div className="bg-panel rounded-xl p-6">
                   <div className="flex items-center justify-between mb-4">
