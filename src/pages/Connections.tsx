@@ -317,7 +317,7 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 flex flex-col connections-report-column overflow-y-auto">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-2 no-print shrink-0">
@@ -361,8 +361,8 @@ export default function Connections() {
                     )}
                   </div>
                   
-                  {/* Report content - no scrolling */}
-                  <div className="flex-1">
+                  {/* Report content - scrollable */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-4 pt-3 border-t border-border">
@@ -433,7 +433,7 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 flex flex-col connections-report-column overflow-y-auto">
+            <div className="lg:w-2/3 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
                   <div className="flex justify-end mb-4 no-print shrink-0">
@@ -476,8 +476,8 @@ export default function Connections() {
                     )}
                   </div>
                   
-                  {/* Report content - no scrolling */}
-                  <div className="flex-1">
+                  {/* Report content - scrollable */}
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                       <div className="flex justify-end mt-6 pt-4 border-t border-border">
