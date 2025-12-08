@@ -7,9 +7,9 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex h-screen w-full overflow-hidden">
       <Sidebar />
-      <main className="flex-1 ml-56 bg-background overflow-auto">
+      <main className="flex-1 ml-56 bg-background overflow-hidden">
         {children}
       </main>
     </div>
