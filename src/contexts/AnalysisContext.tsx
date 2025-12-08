@@ -11,6 +11,10 @@ interface AnalysisContextType {
   hasResults: boolean;
   pendingAuthSave: boolean;
   setPendingAuthSave: (pending: boolean) => void;
+  conversationText: string;
+  setConversationText: (text: string) => void;
+  inputMode: 'upload' | 'text';
+  setInputMode: (mode: 'upload' | 'text') => void;
 }
 
 const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined);
@@ -20,6 +24,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pendingAuthSave, setPendingAuthSave] = useState(false);
+  const [conversationText, setConversationText] = useState("");
+  const [inputMode, setInputMode] = useState<'upload' | 'text'>('upload');
 
   const hasResults = analysisResult !== null;
 
@@ -35,6 +41,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         hasResults,
         pendingAuthSave,
         setPendingAuthSave,
+        conversationText,
+        setConversationText,
+        inputMode,
+        setInputMode,
       }}
     >
       {children}

@@ -25,7 +25,7 @@ interface SaveConnectionDrawerProps {
 }
 
 export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProps) {
-  const { analysisResult } = useAnalysis();
+  const { analysisResult, uploadedFiles, conversationText, inputMode } = useAnalysis();
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -66,6 +66,56 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
     setConnections((data || []) as unknown as Connection[]);
   };
 
+  const saveSnapshots = async (connectionId: string) => {
+    if (!user) return;
+
+    try {
+      if (inputMode === 'text' && conversationText.trim()) {
+        // Save text input as a snapshot
+        await supabase.from("snapshots").insert([{
+          user_id: user.id,
+          connection_id: connectionId,
+          file_name: "Text Input",
+          file_type: "text/plain",
+          extracted_text: conversationText,
+        }]);
+      } else if (uploadedFiles.length > 0) {
+        // Upload files and create snapshot records
+        for (const uploadedFile of uploadedFiles) {
+          const filePath = `${user.id}/${connectionId}/${uploadedFile.id}-${uploadedFile.name}`;
+          
+          // Upload file to storage
+          const { error: uploadError } = await supabase.storage
+            .from("conversation-files")
+            .upload(filePath, uploadedFile.file);
+
+          if (uploadError) {
+            console.error("Error uploading file:", uploadError);
+            continue;
+          }
+
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from("conversation-files")
+            .getPublicUrl(filePath);
+
+          // Create snapshot record
+          await supabase.from("snapshots").insert([{
+            user_id: user.id,
+            connection_id: connectionId,
+            file_name: uploadedFile.name,
+            file_type: uploadedFile.type,
+            file_url: urlData.publicUrl,
+            extracted_text: uploadedFile.extractedText || null,
+          }]);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving snapshots:", error);
+      // Don't throw - snapshots are secondary to the main connection save
+    }
+  };
+
   const handleSave = async () => {
     if (!user || !analysisResult) return;
 
@@ -81,17 +131,23 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
     setSaving(true);
 
     try {
+      let connectionId: string;
+
       if (isExisting && selectedPersonName) {
         // Insert a NEW record with the same person_name (preserves history!)
-        const { error } = await supabase.from("connections").insert([{
+        const { data, error } = await supabase.from("connections").insert([{
           user_id: user.id,
           person_name: selectedPersonName,
           analysis_data: JSON.parse(JSON.stringify(analysisResult)),
           notes: notes || null,
           analysis_date: date || null,
-        }]);
+        }]).select('id').single();
 
         if (error) throw error;
+        connectionId = data.id;
+
+        // Save snapshots
+        await saveSnapshots(connectionId);
 
         toast({
           title: "Analysis saved",
@@ -99,15 +155,19 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
         });
       } else {
         // Create new connection
-        const { error } = await supabase.from("connections").insert([{
+        const { data, error } = await supabase.from("connections").insert([{
           user_id: user.id,
           person_name: userName.trim(),
           analysis_data: JSON.parse(JSON.stringify(analysisResult)),
           notes: notes || null,
           analysis_date: date || null,
-        }]);
+        }]).select('id').single();
 
         if (error) throw error;
+        connectionId = data.id;
+
+        // Save snapshots
+        await saveSnapshots(connectionId);
 
         toast({
           title: "Connection saved",
