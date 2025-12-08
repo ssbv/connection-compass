@@ -56,6 +56,15 @@ export default function Connections() {
     return personNames.some((name) => groupedConnections[name].length > 1);
   }, [personNames, groupedConnections]);
 
+  // Auto-select first person's latest report on load
+  useEffect(() => {
+    if (connections.length > 0 && !selectedConnection && personNames.length > 0) {
+      const firstPersonName = personNames[0];
+      setSelectedPerson(firstPersonName);
+      setSelectedConnection(groupedConnections[firstPersonName][0]);
+    }
+  }, [connections, personNames, groupedConnections, selectedConnection]);
+
 
   const getTrafficLightColor = (light?: string) => {
     switch (light) {
@@ -121,7 +130,7 @@ export default function Connections() {
                         : "bg-card border-border hover:bg-panel"
                     )}
                   >
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 min-w-0">
                         {latestAnalysis?.meta?.traffic_light && (
                           <div
@@ -134,7 +143,7 @@ export default function Connections() {
                         <p className="font-medium text-foreground text-sm truncate">{personName}</p>
                       </div>
                       {latestAnalysis?.meta?.overall_conversation_health_score !== undefined && (
-                        <span className="text-xs font-semibold text-foreground shrink-0">
+                        <span className="text-xs font-semibold text-foreground shrink-0 pl-2">
                           {latestAnalysis.meta.overall_conversation_health_score}/100
                         </span>
                       )}
@@ -240,7 +249,7 @@ export default function Connections() {
                         : "bg-card border-border hover:bg-panel"
                     )}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
                         {analysis?.meta?.traffic_light && (
                           <div
@@ -258,7 +267,7 @@ export default function Connections() {
                         </div>
                       </div>
                       {analysis?.meta?.overall_conversation_health_score !== undefined && (
-                        <span className="text-sm font-semibold text-foreground">
+                        <span className="text-sm font-semibold text-foreground ml-auto pl-4">
                           {analysis.meta.overall_conversation_health_score}/100
                         </span>
                       )}
