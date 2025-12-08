@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Connection, AnalysisResult } from "@/types/analysis";
+import { Connection, AnalysisResult, Snapshot } from "@/types/analysis";
 import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
+import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -25,7 +26,7 @@ export default function Connections() {
   const fetchConnections = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data: connectionsData, error } = await supabase
       .from("connections")
       .select("*")
       .eq("user_id", user.id)
@@ -33,9 +34,25 @@ export default function Connections() {
 
     if (error) {
       console.error("Error fetching connections:", error);
-    } else {
-      setConnections((data || []) as unknown as Connection[]);
+      setLoading(false);
+      return;
     }
+
+    const connectionIds = (connectionsData || []).map((c) => c.id);
+
+    // Fetch all snapshots for these connections
+    const { data: snapshotsData } = await supabase
+      .from("snapshots")
+      .select("*")
+      .in("connection_id", connectionIds);
+
+    // Map snapshots to their connections
+    const connectionsWithSnapshots = (connectionsData || []).map((conn) => ({
+      ...conn,
+      snapshots: (snapshotsData || []).filter((s) => s.connection_id === conn.id) as Snapshot[],
+    }));
+
+    setConnections(connectionsWithSnapshots as unknown as Connection[]);
     setLoading(false);
   };
 
@@ -283,6 +300,9 @@ export default function Connections() {
                       "{selectedConnection.notes}"
                     </p>
                   )}
+                  {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                    <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
+                  )}
                   <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                   <div className="flex justify-end mt-6 pt-4 border-t border-border">
                     <Button
@@ -367,6 +387,9 @@ export default function Connections() {
                     <p className="text-sm text-muted-foreground mb-4 italic">
                       "{selectedConnection.notes}"
                     </p>
+                  )}
+                  {selectedConnection.snapshots && selectedConnection.snapshots.length > 0 && (
+                    <SavedSnapshotsSection snapshots={selectedConnection.snapshots} />
                   )}
                   <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
                   <div className="flex justify-end mt-6 pt-4 border-t border-border">

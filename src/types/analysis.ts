@@ -112,6 +112,15 @@ export interface UploadedFile {
   extractedText?: string;
 }
 
+export interface Snapshot {
+  id: string;
+  file_name: string;
+  file_type: string;
+  file_url: string | null;
+  extracted_text: string | null;
+  connection_id: string | null;
+}
+
 export interface Connection {
   id: string;
   user_id: string;
@@ -121,4 +130,5 @@ export interface Connection {
   analysis_date: string | null;
   created_at: string;
   updated_at: string;
+  snapshots?: Snapshot[];
 }
