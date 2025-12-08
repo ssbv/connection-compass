@@ -211,7 +211,7 @@ export default function Connections() {
 
   return (
     <AppLayout>
-      <div className="h-full flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
+      <div className="h-[calc(100vh-2rem)] flex flex-col p-6 lg:p-10 max-w-7xl mx-auto overflow-hidden">
         <h1 className="text-xl font-semibold text-foreground mb-4 shrink-0 connections-title">Connections</h1>
 
         {loading ? (
