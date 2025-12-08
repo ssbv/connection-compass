@@ -204,6 +204,12 @@ const Index = () => {
         {/* Bottom Links */}
         <div className="p-4 space-y-2 border-t border-border">
           <Link 
+            to="/connections" 
+            className="block px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
+          >
+            Connections
+          </Link>
+          <Link 
             to="/settings" 
             className="block px-3 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md transition-colors"
           >
