@@ -183,19 +183,18 @@ export function UploadCard() {
       >
         <div className="flex items-center gap-4 flex-1">
           {inputMode === 'upload' ? (
-            <>
+            <div className="flex items-center gap-4 flex-1 relative">
               <Upload className="h-10 w-10 text-muted-foreground/50 flex-shrink-0" />
-              <div>
-                <p className="text-muted-foreground">Upload png, jpeg, pdf, doc.</p>
-                <input
-                  type="file"
-                  multiple
-                  accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-            </>
+              <p className="text-muted-foreground">Upload png, jpeg, pdf, doc.</p>
+              <input
+                type="file"
+                multiple
+                accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                style={{ pointerEvents: isDragOver ? 'none' : 'auto' }}
+              />
+            </div>
           ) : (
             <>
               <PenLine className="h-10 w-10 text-muted-foreground/50 flex-shrink-0" />
