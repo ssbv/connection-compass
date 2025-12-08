@@ -199,6 +199,34 @@
     flex: none !important;
     margin: 0 !important;
     padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  /* Remove all overflow constraints for printing */
+  .overflow-hidden,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+  
+  /* Allow containers to expand to fit content */
+  .h-screen,
+  .h-full {
+    height: auto !important;
+  }
+  
+  .min-h-0 {
+    min-height: auto !important;
+  }
+  
+  .max-h-48 {
+    max-height: none !important;
+  }
+
+  /* Ensure flex containers don't restrict height */
+  .flex-1 {
+    flex: none !important;
   }
 
   /* Print header for connection reports */
