@@ -316,10 +316,10 @@ export default function Connections() {
             </div>
 
             {/* Column 3: Full Report */}
-            <div className="flex-1 min-w-0 overflow-y-auto connections-report-column">
+            <div className="flex-1 min-w-0 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
-                  <div className="flex justify-end mb-2 no-print">
+                  <div className="flex justify-end mb-2 no-print shrink-0">
                     <Button 
                       onClick={handleExportPDF} 
                       variant="outline"
@@ -330,6 +330,7 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                   <div className="bg-panel rounded-lg p-4">
                     {/* Print-only header */}
                     <div className="hidden connections-print-header">
@@ -369,6 +370,7 @@ export default function Connections() {
                         Delete
                       </Button>
                     </div>
+                  </div>
                   </div>
                 </>
               ) : (
@@ -425,10 +427,10 @@ export default function Connections() {
             </div>
 
             {/* Full Report View */}
-            <div className="lg:w-2/3 overflow-y-auto connections-report-column">
+            <div className="lg:w-2/3 flex flex-col connections-report-column">
               {selectedConnection?.analysis_data ? (
                 <>
-                  <div className="flex justify-end mb-4 no-print">
+                  <div className="flex justify-end mb-4 no-print shrink-0">
                     <Button 
                       onClick={handleExportPDF} 
                       variant="outline"
@@ -438,6 +440,7 @@ export default function Connections() {
                       Export PDF
                     </Button>
                   </div>
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                   <div className="bg-panel rounded-xl p-6">
                     {/* Print-only header */}
                     <div className="hidden connections-print-header">
@@ -477,6 +480,7 @@ export default function Connections() {
                         Delete Report
                       </Button>
                     </div>
+                  </div>
                   </div>
                 </>
               ) : (
