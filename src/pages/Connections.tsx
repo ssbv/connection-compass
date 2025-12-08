@@ -175,30 +175,38 @@ export default function Connections() {
     }
   };
 
-  const handleExportPDF = () => {
-    if (!selectedConnection) return;
-    
-    // Get the date for the filename (prefer analysis_date, fallback to created_at)
+  const getExportFilename = () => {
+    if (!selectedConnection) return "";
     const reportDate = selectedConnection.analysis_date 
       ? format(new Date(selectedConnection.analysis_date), "yyyy-MM-dd")
       : format(new Date(selectedConnection.created_at), "yyyy-MM-dd");
+    return `${selectedConnection.person_name} - ${reportDate}`;
+  };
+
+  const handleExportPDF = () => {
+    if (!selectedConnection) return;
     
-    // Create filename from person name and date
-    const pdfTitle = `${selectedConnection.person_name} - ${reportDate}`;
-    
-    // Save original title
+    const pdfTitle = getExportFilename();
     const originalTitle = document.title;
     
-    // Set custom title (browser uses this as default PDF filename)
+    // Use beforeprint/afterprint events for better timing
+    const handleBeforePrint = () => {
+      document.title = pdfTitle;
+    };
+    
+    const handleAfterPrint = () => {
+      document.title = originalTitle;
+      window.removeEventListener('beforeprint', handleBeforePrint);
+      window.removeEventListener('afterprint', handleAfterPrint);
+    };
+    
+    window.addEventListener('beforeprint', handleBeforePrint);
+    window.addEventListener('afterprint', handleAfterPrint);
+    
+    // Also set title immediately
     document.title = pdfTitle;
     
-    // Trigger print
     window.print();
-    
-    // Restore original title after a short delay
-    setTimeout(() => {
-      document.title = originalTitle;
-    }, 100);
   };
 
   return (
@@ -326,6 +334,9 @@ export default function Connections() {
                     <div className="hidden connections-print-header">
                       <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
                       <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        Save as: "{getExportFilename()}.pdf"
+                      </p>
                     </div>
                     <div className="flex items-center justify-between mb-4 no-print">
                       <h2 className="text-lg font-medium text-foreground">
@@ -431,6 +442,9 @@ export default function Connections() {
                     <div className="hidden connections-print-header">
                       <h1 className="text-xl font-semibold">Connection Lens Analysis Report</h1>
                       <p className="text-sm text-muted-foreground mt-1">{selectedConnection.person_name}</p>
+                      <p className="text-xs text-muted-foreground mt-2 italic">
+                        Save as: "{getExportFilename()}.pdf"
+                      </p>
                     </div>
                     <div className="flex items-center justify-between mb-4 no-print">
                       <h2 className="text-lg font-medium text-foreground">
