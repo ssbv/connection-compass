@@ -60,7 +60,11 @@ export default function Settings() {
 
     setDeleting(true);
     try {
-      // Delete user data (connections, snapshots, profile)
+      // Delete all user data from all tables
+      await supabase.from("emotional_states").delete().eq("user_id", user.id);
+      await supabase.from("repair_attempts").delete().eq("user_id", user.id);
+      await supabase.from("projections").delete().eq("user_id", user.id);
+      await supabase.from("user_patterns").delete().eq("user_id", user.id);
       await supabase.from("snapshots").delete().eq("user_id", user.id);
       await supabase.from("connections").delete().eq("user_id", user.id);
       await supabase.from("profiles").delete().eq("user_id", user.id);
