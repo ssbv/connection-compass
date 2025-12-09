@@ -6,9 +6,10 @@ import { SelfStabilizationIndicators } from "@/components/emotional/SelfStabiliz
 import { EmotionalCarryForwardRisk } from "@/components/emotional/EmotionalCarryForwardRisk";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, AlertCircle, Loader2, FileDown } from "lucide-react";
+import { Heart, AlertCircle, Loader2, FileDown, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { AnalysisResult, EmotionalStateType } from "@/types/analysis";
 
 interface Connection {
@@ -19,8 +20,11 @@ interface Connection {
 
 export default function EmotionalGrowth() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPopulating, setIsPopulating] = useState(false);
+  const [populatingProgress, setPopulatingProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     if (user) {
@@ -47,6 +51,133 @@ export default function EmotionalGrowth() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Detect connections missing emotional_extraction data
+  const connectionsNeedingUpdate = useMemo(() => {
+    return connections.filter(conn => 
+      !conn.analysis_data?.emotional_extraction?.user_states?.length
+    );
+  }, [connections]);
+
+  const handlePopulateData = async () => {
+    if (connectionsNeedingUpdate.length === 0) return;
+
+    setIsPopulating(true);
+    setPopulatingProgress({ current: 0, total: connectionsNeedingUpdate.length });
+
+    toast({
+      title: "Populating emotional data",
+      description: `Processing ${connectionsNeedingUpdate.length} connections...`,
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < connectionsNeedingUpdate.length; i++) {
+      const conn = connectionsNeedingUpdate[i];
+      setPopulatingProgress({ current: i + 1, total: connectionsNeedingUpdate.length });
+
+      try {
+        // Fetch snapshots for this connection
+        const { data: snapshots, error: snapshotsError } = await supabase
+          .from('snapshots')
+          .select('extracted_text, file_url, file_type')
+          .eq('connection_id', conn.id);
+
+        if (snapshotsError) throw snapshotsError;
+
+        let conversationText = '';
+        let imageBase64 = '';
+
+        for (const snapshot of snapshots || []) {
+          if (snapshot.extracted_text) {
+            conversationText += snapshot.extracted_text + '\n\n';
+          } else if (snapshot.file_url && snapshot.file_type?.startsWith('image/')) {
+            // Convert image URL to base64
+            try {
+              const response = await fetch(snapshot.file_url);
+              const blob = await response.blob();
+              const reader = new FileReader();
+              imageBase64 = await new Promise((resolve) => {
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.readAsDataURL(blob);
+              });
+            } catch (e) {
+              console.error('Error converting image:', e);
+            }
+          }
+        }
+
+        if (!conversationText && !imageBase64) {
+          console.log(`Skipping ${conn.person_name}: no content found`);
+          continue;
+        }
+
+        // Call the analyze-conversation edge function
+        const { data: analysisData, error: analysisError } = await supabase.functions.invoke('analyze-conversation', {
+          body: { 
+            conversationText: conversationText || undefined, 
+            imageBase64: imageBase64 || undefined 
+          }
+        });
+
+        if (analysisError) throw analysisError;
+
+        // Update the connection with new analysis data
+        const { error: updateError } = await supabase
+          .from('connections')
+          .update({ analysis_data: analysisData })
+          .eq('id', conn.id);
+
+        if (updateError) throw updateError;
+
+        // Persist emotional states and repair attempts
+        if (analysisData?.emotional_extraction) {
+          const { user_states, repair_signals } = analysisData.emotional_extraction;
+
+          if (user_states?.length) {
+            const emotionalStatesData = user_states.map((state: string) => ({
+              user_id: user?.id,
+              connection_id: conn.id,
+              state_type: state,
+              intensity: 3
+            }));
+
+            await supabase.from('emotional_states').insert(emotionalStatesData);
+          }
+
+          if (repair_signals?.length) {
+            const repairAttemptsData = repair_signals.map((signal: { type: string; was_reciprocated: boolean }) => ({
+              user_id: user?.id,
+              connection_id: conn.id,
+              attempt_type: signal.type,
+              status: signal.was_reciprocated ? 'repaired' : 'unresolved'
+            }));
+
+            await supabase.from('repair_attempts').insert(repairAttemptsData);
+          }
+        }
+
+        // Update local state
+        setConnections(prev => prev.map(c => 
+          c.id === conn.id ? { ...c, analysis_data: analysisData } : c
+        ));
+
+        successCount++;
+      } catch (error) {
+        console.error(`Error processing ${conn.person_name}:`, error);
+        errorCount++;
+      }
+    }
+
+    setIsPopulating(false);
+
+    toast({
+      title: "Population complete",
+      description: `Successfully updated ${successCount} connections${errorCount > 0 ? `, ${errorCount} failed` : ''}.`,
+      variant: errorCount > 0 ? "destructive" : "default"
+    });
   };
 
   // Calculate emotional imprints from analysis data
@@ -298,6 +429,45 @@ export default function EmotionalGrowth() {
             </Button>
           )}
         </div>
+
+        {/* Banner for connections needing emotional data */}
+        {connectionsNeedingUpdate.length > 0 && (
+          <Card className="border-amber-200 bg-amber-50/50 dark:border-amber-900 dark:bg-amber-950/20 print:hidden">
+            <CardContent className="py-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-amber-800 dark:text-amber-200">
+                      {connectionsNeedingUpdate.length} connection{connectionsNeedingUpdate.length !== 1 ? 's' : ''} missing emotional data
+                    </p>
+                    <p className="text-sm text-amber-700 dark:text-amber-300 mt-0.5">
+                      Re-analyze to populate emotional insights for older connections.
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  onClick={handlePopulateData}
+                  disabled={isPopulating}
+                  size="sm"
+                  className="gap-2 shrink-0"
+                >
+                  {isPopulating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {populatingProgress.current}/{populatingProgress.total}
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4" />
+                      Populate Data
+                    </>
+                  )}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {!hasData && (
           <Card className="border-yellow-200 bg-yellow-50/50 dark:border-yellow-900 dark:bg-yellow-950/20">
