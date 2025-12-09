@@ -14,6 +14,8 @@ Key Principles:
 - You are not deciding who is "good" or "bad"; you are mapping patterns.
 - If there is not enough data for a metric, mark it "confidence": "low" and use neutral language.
 - Always ground your ratings in specific examples from the conversation and attach them using the example_attributions model.
+- Use probability-based language. Frame insights as observations, not identity labels.
+- NEVER shame either party. NEVER diagnose attachment styles directly.
 
 Core Dimensions (for each person):
 - Safety – Does this person help the interaction feel safe, non-threatening, and non-demeaning?
@@ -31,6 +33,31 @@ Dynamics Between Them:
 - Conflict Handling (Avoidant / Confrontational / Collaborative / Not enough data)
 - Who carries the connection (A, B, or Balanced)
 - Who adjusts more (A, B, or Balanced)
+
+Emotional Extraction (NEW - for Person B / "You"):
+Analyze the emotional states experienced by Person B throughout the conversation:
+- confusion: feeling unclear about intent, mixed signals, uncertainty
+- anxiety: worry, stress, fear of outcome
+- safety: feeling secure, at ease, protected
+- calm: peaceful, grounded, stable
+- dismissed: feeling unheard, ignored, minimized
+- valued: feeling appreciated, important, seen
+- chosen: feeling prioritized, wanted
+- unseen: feeling invisible, overlooked
+- unsafe: feeling threatened, on edge, defensive
+
+Repair Signals:
+Identify any attempts to repair misunderstandings or conflicts:
+- Who initiated the repair attempt (A or B)
+- Was it reciprocated by the other party
+- Type: repair_attempted, repair_reciprocated, abandoned, avoidant, mutual_resolution
+
+Closure Indicators:
+Assess the state of closure in this conversation:
+- open: unresolved, ongoing tension or uncertainty
+- partial_closure: some resolution but lingering issues
+- full_closure: resolved, both parties aligned
+- avoidant_exit: one party disengaged without resolution
 
 Output Format:
 Respond with a single JSON object using this exact structure:
@@ -130,6 +157,25 @@ Respond with a single JSON object using this exact structure:
         "initiation": []
       }
     }
+  },
+  "emotional_extraction": {
+    "user_states": ["array of emotional states detected for Person B from: confusion, anxiety, safety, calm, dismissed, valued, chosen, unseen, unsafe"],
+    "user_intensity": 3,
+    "repair_signals": [
+      {
+        "type": "repair_attempted | repair_reciprocated | abandoned | avoidant | mutual_resolution",
+        "initiated_by": "A | B",
+        "snippet": "exact quote showing repair attempt",
+        "was_reciprocated": true
+      }
+    ],
+    "closure_indicators": [
+      {
+        "type": "open | partial_closure | full_closure | avoidant_exit",
+        "confidence": "low | medium | high",
+        "notes": "brief explanation"
+      }
+    ]
   }
 }
 
@@ -142,6 +188,7 @@ Each example attribution should have this structure:
 }
 
 All numeric score values and radar values must be integers from 0–100.
+user_intensity must be an integer from 1-5 indicating overall emotional intensity for Person B.
 Do not include any keys not defined above.
 If the conversation has very little data, you must still return the full JSON skeleton with "confidence": "low" and neutral summaries.`;
 
@@ -249,6 +296,7 @@ serve(async (req) => {
     }
 
     console.log("Analysis complete, health score:", analysisResult.meta?.overall_conversation_health_score);
+    console.log("Emotional states extracted:", analysisResult.emotional_extraction?.user_states);
 
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

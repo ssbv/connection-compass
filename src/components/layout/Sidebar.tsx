@@ -1,38 +1,26 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { Home, TrendingUp, Compass, Heart, Users, Settings, LogOut } from "lucide-react";
 
-const navItems = [
-  { id: "snapshots", label: "Snapshots", section: "snapshots" },
-  { id: "overall-results", label: "Overall Results", section: "overall-results" },
-  { id: "them-you", label: "Them & You", section: "them-you" },
-  { id: "dynamics", label: "Dynamics", section: "dynamics" },
+const mainNavItems = [
+  { id: "home", label: "Home", path: "/dashboard", icon: Home },
+  { id: "patterns", label: "Pattern Tracker", path: "/patterns", icon: TrendingUp },
+  { id: "projections", label: "Future Projection", path: "/projections", icon: Compass },
+  { id: "emotional", label: "Emotional Growth", path: "/emotional-growth", icon: Heart },
 ];
 
 const bottomItems = [
-  { id: "connections", label: "Connections", path: "/connections" },
-  { id: "settings", label: "Settings", path: "/settings" },
+  { id: "connections", label: "Connections", path: "/connections", icon: Users },
+  { id: "settings", label: "Settings", path: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
 
-  const handleNavClick = (item: typeof navItems[0]) => {
-    if (location.pathname !== "/dashboard") {
-      navigate("/dashboard");
-    }
-    // Scroll to section after a small delay to ensure page is loaded
-    setTimeout(() => {
-      const element = document.getElementById(item.section);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }, 100);
-  };
-
-  const handleBottomClick = (path: string) => {
+  const handleNavClick = (path: string) => {
     navigate(path);
   };
 
@@ -41,8 +29,10 @@ export function Sidebar() {
     navigate("/auth");
   };
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <aside className="fixed top-0 left-0 h-screen w-44 z-40 bg-sidebar flex flex-col">
+    <aside className="fixed top-0 left-0 h-screen w-52 z-40 bg-sidebar flex flex-col border-r border-sidebar-border">
       {/* Logo */}
       <div className="p-4 pt-6">
         <span className="text-sm font-semibold text-sidebar-foreground tracking-wide">
@@ -53,47 +43,60 @@ export function Sidebar() {
       {/* Main Navigation */}
       <nav className="flex-1 px-3 py-4">
         <ul className="space-y-1">
-          {navItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => handleNavClick(item)}
-                className={cn(
-                  "w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent rounded-md transition-colors",
-                  "focus:outline-none focus:ring-2 focus:ring-sidebar-ring"
-                )}
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
+          {mainNavItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNavClick(item.path)}
+                  className={cn(
+                    "w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent rounded-md transition-colors",
+                    isActive(item.path) && "bg-sidebar-accent text-sidebar-primary font-medium"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              </li>
+            );
+          })}
         </ul>
 
-        {/* Divider */}
         <div className="my-6 border-t border-sidebar-border" />
 
         <ul className="space-y-1">
-          {bottomItems.map((item) => (
-            <li key={item.id}>
-              <button
-                onClick={() => handleBottomClick(item.path)}
-                className={cn(
-                  "w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent rounded-md transition-colors",
-                  location.pathname === item.path && "bg-sidebar-accent text-sidebar-primary font-medium"
-                )}
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
+          {bottomItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNavClick(item.path)}
+                  className={cn(
+                    "w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent rounded-md transition-colors",
+                    isActive(item.path) && "bg-sidebar-accent text-sidebar-primary font-medium"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 
-      {/* Logout at bottom */}
+      {/* User & Logout */}
       <div className="p-3 pb-6">
+        {user && (
+          <p className="text-xs text-sidebar-foreground/60 mb-2 px-3 truncate">
+            {user.email}
+          </p>
+        )}
         <button
           onClick={handleLogout}
-          className="w-full text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-destructive hover:bg-sidebar-accent rounded-md transition-colors"
+          className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-destructive hover:bg-sidebar-accent rounded-md transition-colors"
         >
+          <LogOut className="h-4 w-4" />
           Log Out
         </button>
       </div>
