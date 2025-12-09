@@ -87,13 +87,21 @@ export default function EmotionalGrowth() {
     return result;
   }, [connections]);
 
-  // Calculate repair statuses from analysis data
+  // Calculate repair statuses from analysis data - grouped by person name
   const repairs = useMemo(() => {
-    return connections.map(conn => {
+    type RepairStatusType = 'repaired' | 'partially_repaired' | 'abandoned' | 'avoidant' | 'mutual_resolution';
+    
+    const repairMap: Record<string, {
+      connection_name: string;
+      statuses: RepairStatusType[];
+      notes: string[];
+    }> = {};
+
+    connections.forEach(conn => {
       const closure = conn.analysis_data?.emotional_extraction?.closure_indicators?.[0];
       const repairSignals = conn.analysis_data?.emotional_extraction?.repair_signals || [];
       
-      let status: 'repaired' | 'partially_repaired' | 'abandoned' | 'avoidant' | 'mutual_resolution' = 'partially_repaired';
+      let status: RepairStatusType = 'partially_repaired';
       
       if (closure) {
         if (closure.type === 'full_closure') status = 'repaired';
@@ -105,12 +113,31 @@ export default function EmotionalGrowth() {
         }
       }
 
-      return {
-        connection_name: conn.person_name,
-        status,
-        notes: closure?.notes
-      };
-    }).filter(r => r.connection_name);
+      if (!repairMap[conn.person_name]) {
+        repairMap[conn.person_name] = {
+          connection_name: conn.person_name,
+          statuses: [],
+          notes: []
+        };
+      }
+      repairMap[conn.person_name].statuses.push(status);
+      if (closure?.notes) repairMap[conn.person_name].notes.push(closure.notes);
+    });
+
+    // Aggregate to single status per person (priority: most concerning status)
+    const aggregateStatus = (statuses: RepairStatusType[]): RepairStatusType => {
+      const priority: RepairStatusType[] = ['abandoned', 'avoidant', 'partially_repaired', 'mutual_resolution', 'repaired'];
+      for (const status of priority) {
+        if (statuses.includes(status)) return status;
+      }
+      return 'partially_repaired';
+    };
+
+    return Object.values(repairMap).map(group => ({
+      connection_name: group.connection_name,
+      status: aggregateStatus(group.statuses),
+      notes: group.notes.length > 0 ? group.notes.join('; ') : undefined
+    }));
   }, [connections]);
 
   // Calculate self-stabilization indicators
@@ -171,16 +198,19 @@ export default function EmotionalGrowth() {
     ];
   }, [connections]);
 
-  // Calculate carry-forward risk
+  // Calculate carry-forward risk - use Sets for unique person names
   const carryForwardRisk = useMemo(() => {
-    const anxietyConnections: string[] = [];
-    const dismissedConnections: string[] = [];
+    const anxietyConnectionsSet = new Set<string>();
+    const dismissedConnectionsSet = new Set<string>();
 
     connections.forEach(conn => {
       const states = conn.analysis_data?.emotional_extraction?.user_states || [];
-      if (states.includes('anxiety')) anxietyConnections.push(conn.person_name);
-      if (states.includes('dismissed')) dismissedConnections.push(conn.person_name);
+      if (states.includes('anxiety')) anxietyConnectionsSet.add(conn.person_name);
+      if (states.includes('dismissed')) dismissedConnectionsSet.add(conn.person_name);
     });
+
+    const anxietyConnections = Array.from(anxietyConnectionsSet);
+    const dismissedConnections = Array.from(dismissedConnectionsSet);
 
     const patterns: { from_connection: string; to_connection: string; pattern_type: string }[] = [];
     
