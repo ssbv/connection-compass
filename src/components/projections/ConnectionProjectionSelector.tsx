@@ -1,18 +1,18 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface Connection {
-  id: string;
+interface GroupedConnection {
   person_name: string;
+  latest_updated_at: string;
 }
 
 interface ConnectionProjectionSelectorProps {
-  connections: Connection[];
+  groupedConnections: GroupedConnection[];
   selectedConnection: string | null;
-  onSelect: (connectionId: string | null) => void;
+  onSelect: (personName: string | null) => void;
 }
 
 export function ConnectionProjectionSelector({
-  connections,
+  groupedConnections,
   selectedConnection,
   onSelect
 }: ConnectionProjectionSelectorProps) {
@@ -26,9 +26,9 @@ export function ConnectionProjectionSelector({
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">All Connections (Global)</SelectItem>
-        {connections.map((conn) => (
-          <SelectItem key={conn.id} value={conn.id}>
-            {conn.person_name}
+        {groupedConnections.map((group) => (
+          <SelectItem key={group.person_name} value={group.person_name}>
+            {group.person_name}
           </SelectItem>
         ))}
       </SelectContent>
