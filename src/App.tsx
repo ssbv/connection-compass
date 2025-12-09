@@ -13,6 +13,7 @@ import Settings from "./pages/Settings";
 import Patterns from "./pages/Patterns";
 import Projections from "./pages/Projections";
 import EmotionalGrowth from "./pages/EmotionalGrowth";
+import Compare from "./pages/Compare";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -85,6 +86,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <EmotionalGrowth />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/compare"
+        element={
+          <ProtectedRoute>
+            <Compare />
           </ProtectedRoute>
         }
       />

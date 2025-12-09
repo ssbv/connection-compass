@@ -1,13 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import { Home, TrendingUp, Compass, Heart, Users, Settings, LogOut } from "lucide-react";
+import { Home, TrendingUp, Compass, Heart, GitCompare, Users, Settings, LogOut } from "lucide-react";
 
 const mainNavItems = [
   { id: "home", label: "Home", path: "/dashboard", icon: Home },
   { id: "patterns", label: "Pattern Tracker", path: "/patterns", icon: TrendingUp },
   { id: "projections", label: "Future Projection", path: "/projections", icon: Compass },
   { id: "emotional", label: "Emotional Growth", path: "/emotional-growth", icon: Heart },
+  { id: "compare", label: "Compare", path: "/compare", icon: GitCompare },
 ];
 
 const bottomItems = [
