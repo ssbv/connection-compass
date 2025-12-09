@@ -408,19 +408,14 @@ export default function EmotionalGrowth() {
     window.print();
   };
 
-  if (isLoading) {
-    return (
-      <AppLayout>
-        <div className="p-6 flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AppLayout>
-    );
-  }
-
   return (
     <AppLayout>
       <AuthGate>
+      {isLoading ? (
+        <div className="p-6 flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
       <div className="p-4 space-y-4">
         {/* Print Header */}
         <div className="emotional-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
@@ -520,6 +515,7 @@ export default function EmotionalGrowth() {
           </>
         )}
       </div>
+      )}
       </AuthGate>
     </AppLayout>
   );
