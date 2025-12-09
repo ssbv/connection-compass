@@ -1,15 +1,15 @@
 import { useAnalysis } from "@/contexts/AnalysisContext";
 
 export function SnapshotsSection() {
-  const { uploadedFiles } = useAnalysis();
+  const { reportSnapshots } = useAnalysis();
 
-  if (uploadedFiles.length === 0) return null;
+  if (reportSnapshots.length === 0) return null;
 
   return (
     <section id="snapshots" className="animate-fade-in">
       <h2 className="text-lg font-medium text-foreground mb-4">Snapshots</h2>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {uploadedFiles.map((file) => (
+        {reportSnapshots.map((file) => (
           <div
             key={file.id}
             className="aspect-square rounded-xl bg-panel border border-border/50 overflow-hidden"

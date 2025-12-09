@@ -19,7 +19,8 @@ const ACCEPTED_TYPES = [
 export function UploadCard() {
   const { 
     uploadedFiles, 
-    setUploadedFiles, 
+    setUploadedFiles,
+    setReportSnapshots,
     setAnalysisResult, 
     isAnalyzing, 
     setIsAnalyzing,
@@ -151,6 +152,11 @@ export function UploadCard() {
         throw new Error(data.error);
       }
 
+      // Freeze current files as report snapshots and clear pending uploads
+      setReportSnapshots([...uploadedFiles]);
+      setUploadedFiles([]);
+      setConversationText("");
+      
       setAnalysisResult(data);
       toast({
         title: "Analysis complete",
