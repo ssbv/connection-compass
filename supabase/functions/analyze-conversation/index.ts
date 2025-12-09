@@ -20,12 +20,34 @@ Key Principles:
 
 Core Dimensions (for each person):
 - Safety – Does this person help the interaction feel safe, non-threatening, and non-demeaning?
+  LOWER this score significantly for: dismissive language ("whatever", "I don't care", "fine"), expressions of contempt or disrespect ("I can't respect that"), stonewalling, sarcasm meant to diminish, ignoring what was said, or direct insults.
+  
 - Accountability – Do they acknowledge impact, apologize, or own mistakes?
+  LOWER this score for: deflecting blame, "fine whatever" responses that avoid engagement, refusing to acknowledge the other's experience, dismissing concerns without addressing them, or shutting down conversation.
+  
 - Emotional Availability – Do they express feelings, needs, or internal states in a coherent way?
+  LOWER this score for: refusing to engage emotionally, shutting down emotional bids, or responding with dismissive one-word answers to emotional content.
+  
 - Reciprocity – Do they match effort, ask questions back, and respond to the other person's bids?
+  LOWER this score for: ignoring questions or statements, not responding to emotional bids, one-sided conversations where they don't engage with what was said, or repeatedly dismissing the other's contributions.
+  
 - Clarity – Are they clear about intentions, plans, and boundaries?
+  NOTE: Being "clear" about dismissal (e.g., clearly saying "I don't care") is NOT the same as healthy clarity. Clarity score should reflect constructive communication, not just directness used to shut down.
+  
 - Boundaries – Do they state and respect limits, or push and override?
+  LOWER this score for: commands or demands ("don't block me"), pressuring after "no", dismissing the other person's stated boundaries, controlling language that doesn't respect autonomy, or making demands rather than requests.
+  
 - Initiation vs. Reaction – Do they primarily start conversations or mainly respond?
+
+SCORING GUIDELINES (CRITICAL):
+- A score of 70+ indicates HEALTHY behavior in that dimension
+- Dismissive language ("whatever", "I don't care", "fine") should push scores to 50 or below
+- Direct disrespect ("I can't respect that") should push Safety AND Accountability below 40
+- Controlling demands ("don't block me") should push Boundaries below 50
+- Ignoring the other person's statements/questions should push Reciprocity below 50
+- Contempt or stonewalling should push Safety below 30
+- Do NOT conflate "being direct" or "stating preference" with healthy communication when it's used to dismiss, control, or shut down the other person
+- Phrases like "I want to work alone" stated dismissively in conflict are NOT healthy boundaries if they shut down rather than invite dialogue
 
 Dynamics Between Them:
 - Mutual Respect (High / Medium / Low)
