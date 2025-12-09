@@ -66,6 +66,41 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
     setConnections((data || []) as unknown as Connection[]);
   };
 
+  const saveEmotionalData = async (connectionId: string) => {
+    if (!user || !analysisResult?.emotional_extraction) return;
+
+    try {
+      const { user_states, user_intensity, repair_signals } = analysisResult.emotional_extraction;
+
+      // Save emotional states
+      if (user_states && user_states.length > 0) {
+        const emotionalStateRecords = user_states.map(state => ({
+          user_id: user.id,
+          connection_id: connectionId,
+          state_type: state,
+          intensity: user_intensity || 3
+        }));
+
+        await supabase.from("emotional_states").insert(emotionalStateRecords);
+      }
+
+      // Save repair attempts
+      if (repair_signals && repair_signals.length > 0) {
+        const repairRecords = repair_signals.map(signal => ({
+          user_id: user.id,
+          connection_id: connectionId,
+          attempt_type: signal.type,
+          status: signal.was_reciprocated ? 'repaired' : 'unresolved',
+          notes: signal.snippet
+        }));
+
+        await supabase.from("repair_attempts").insert(repairRecords);
+      }
+    } catch (error) {
+      console.error("Error saving emotional data:", error);
+    }
+  };
+
   const saveSnapshots = async (connectionId: string) => {
     if (!user) return;
 
@@ -146,8 +181,11 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
         if (error) throw error;
         connectionId = data.id;
 
-        // Save snapshots
+      // Save snapshots
         await saveSnapshots(connectionId);
+
+        // Save emotional states and repair attempts
+        await saveEmotionalData(connectionId);
 
         toast({
           title: "Analysis saved",
@@ -168,6 +206,9 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
 
         // Save snapshots
         await saveSnapshots(connectionId);
+
+        // Save emotional states and repair attempts
+        await saveEmotionalData(connectionId);
 
         toast({
           title: "Connection saved",

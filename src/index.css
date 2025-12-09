@@ -237,6 +237,13 @@
     padding-bottom: 1rem;
     border-bottom: 1px solid #e0e0e0;
   }
+
+  /* Pattern, Projection, and Emotional Growth page print headers */
+  .patterns-print-header,
+  .projections-print-header,
+  .emotional-print-header {
+    display: block !important;
+  }
 }
 
 @layer utilities {

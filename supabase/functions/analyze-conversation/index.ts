@@ -176,8 +176,40 @@ Respond with a single JSON object using this exact structure:
         "notes": "brief explanation"
       }
     ]
+  },
+  "reflection": {
+    "what_just_happened": "A brief, neutral 2-3 sentence description of the key shift or interaction in this conversation. What changed between the start and end?",
+    "pattern_suggestion": "1-2 sentences about what this pattern may suggest about recurring tendencies, without labeling or diagnosing. Use probability language.",
+    "next_step_options": {
+      "continue": {
+        "risks": ["1-2 potential emotional or relational risks if continuing as-is"],
+        "benefits": ["1-2 potential benefits of continuing"],
+        "boundary_consequences": ["How boundaries may be affected"]
+      },
+      "pause": {
+        "risks": ["1-2 risks of pausing the connection"],
+        "benefits": ["1-2 benefits of taking a step back"],
+        "boundary_consequences": ["How boundaries may be affected"]
+      },
+      "close": {
+        "risks": ["1-2 risks of stepping back or closing"],
+        "benefits": ["1-2 benefits of stepping back"],
+        "boundary_consequences": ["How boundaries may be affected"]
+      }
+    },
+    "reflection_prompts": [
+      "What did I need in this moment that I didn't receive?",
+      "What boundary would protect me next time?",
+      "Was I responding from fear or from clarity?"
+    ]
   }
 }
+
+Reflection Guidelines:
+- "what_just_happened" should be a neutral summary, not blaming either party
+- "pattern_suggestion" uses probability language like "may suggest", "tendency toward", "could indicate"
+- "next_step_options" provides balanced perspectives for each path
+- "reflection_prompts" are introspective questions to encourage self-awareness
 
 Each example attribution should have this structure:
 {
