@@ -78,7 +78,24 @@ export default function Connections() {
     return groups;
   }, [connections]);
 
-  const personNames = useMemo(() => Object.keys(groupedConnections), [groupedConnections]);
+  const personNames = useMemo(() => {
+    return Object.keys(groupedConnections).sort((a, b) => {
+      // Get the most recent report for each person (first item since already sorted)
+      const mostRecentA = groupedConnections[a][0];
+      const mostRecentB = groupedConnections[b][0];
+      
+      // Get the date (analysis_date takes priority, fallback to created_at)
+      const dateA = mostRecentA.analysis_date 
+        ? new Date(mostRecentA.analysis_date) 
+        : new Date(mostRecentA.created_at);
+      const dateB = mostRecentB.analysis_date 
+        ? new Date(mostRecentB.analysis_date) 
+        : new Date(mostRecentB.created_at);
+      
+      // Sort descending (most recent first)
+      return dateB.getTime() - dateA.getTime();
+    });
+  }, [groupedConnections]);
 
   // Check if any person has multiple reports
   const hasAnyMultipleReports = useMemo(() => {
