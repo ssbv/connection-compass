@@ -6,13 +6,15 @@ import { OverallResultsSection } from "@/components/results/OverallResultsSectio
 import { ThemYouSection } from "@/components/results/ThemYouSection";
 import { DynamicsSection } from "@/components/results/DynamicsSection";
 import { SnapshotsSection } from "@/components/results/SnapshotsSection";
+import { ReflectionSection } from "@/components/results/ReflectionSection";
 import { SaveConnectionDrawer } from "@/components/drawer/SaveConnectionDrawer";
 import { Button } from "@/components/ui/button";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { Loader2 } from "lucide-react";
+import { AnalysisResult } from "@/types/analysis";
 
 export default function Dashboard() {
-  const { hasResults, isAnalyzing } = useAnalysis();
+  const { hasResults, isAnalyzing, analysisResult } = useAnalysis();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -49,6 +51,7 @@ export default function Dashboard() {
             <OverallResultsSection />
             <ThemYouSection />
             <DynamicsSection />
+            <ReflectionSection reflection={analysisResult?.reflection} />
           </div>
         )}
 
