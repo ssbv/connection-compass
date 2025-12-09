@@ -7,20 +7,16 @@ import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
-import { ConnectionTimeline } from "@/components/results/ConnectionTimeline";
-import { ConnectionCompareSelector } from "@/components/comparison/ConnectionCompareSelector";
-import { ComparisonView } from "@/components/comparison/ComparisonView";
 import { Button } from "@/components/ui/button";
 import { Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
+
 export default function Connections() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
-  const [compareIds, setCompareIds] = useState<[string | null, string | null]>([null, null]);
-  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -229,60 +225,12 @@ export default function Connections() {
     window.print();
   };
 
-  const handleCompareSelect = (index: 0 | 1, connectionId: string | null) => {
-    setCompareIds(prev => {
-      const newIds = [...prev] as [string | null, string | null];
-      newIds[index] = connectionId;
-      return newIds;
-    });
-  };
-
-  const handleCompare = () => {
-    if (compareIds[0] && compareIds[1]) {
-      setShowComparison(true);
-    }
-  };
-
-  const handleClearComparison = () => {
-    setCompareIds([null, null]);
-    setShowComparison(false);
-  };
-
-  const compareConnection1 = connections.find(c => c.id === compareIds[0]);
-  const compareConnection2 = connections.find(c => c.id === compareIds[1]);
-
-  // Get selected person's connections for timeline
-  const selectedPersonConnections = selectedPerson ? groupedConnections[selectedPerson] : [];
 
   return (
     <AppLayout>
       <div className="h-full flex flex-col overflow-hidden">
         <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
-
-        {/* Compare Selector */}
-        {connections.length >= 2 && (
-          <div className="mb-4 no-print">
-            <ConnectionCompareSelector
-              connections={connections}
-              selectedIds={compareIds}
-              onSelect={handleCompareSelect}
-              onCompare={handleCompare}
-              onClear={handleClearComparison}
-            />
-          </div>
-        )}
-
-        {/* Comparison View */}
-        {showComparison && compareConnection1 && compareConnection2 && (
-          <div className="mb-4 no-print">
-            <ComparisonView
-              connection1={compareConnection1}
-              connection2={compareConnection2}
-              onClose={handleClearComparison}
-            />
-          </div>
-        )}
 
         {loading ? (
           <p className="text-muted-foreground">Loading...</p>
@@ -337,16 +285,6 @@ export default function Connections() {
                 );
               })}
             </div>
-
-            {/* Timeline for selected person with multiple reports */}
-            {selectedPerson && selectedPersonConnections.length > 1 && (
-              <div className="w-full mt-4 no-print">
-                <ConnectionTimeline
-                  personName={selectedPerson}
-                  connections={selectedPersonConnections}
-                />
-              </div>
-            )}
 
             {/* Column 2: Report instances for selected person */}
             <div className="w-32 shrink-0 connections-report-list">

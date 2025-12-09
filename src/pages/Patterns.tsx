@@ -8,6 +8,7 @@ import { ClarificationRepairPanel } from "@/components/patterns/ClarificationRep
 import { EmotionalLaborEngine } from "@/components/patterns/EmotionalLaborEngine";
 import { EmotionalStateHeatMap } from "@/components/patterns/EmotionalStateHeatMap";
 import { ConnectionFilter } from "@/components/patterns/ConnectionFilter";
+import { GlobalHealthTrend } from "@/components/patterns/GlobalHealthTrend";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
@@ -288,6 +289,12 @@ export default function Patterns() {
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Health Trend Chart */}
+            <GlobalHealthTrend
+              connections={connections}
+              selectedPersonName={selectedPersonName}
+            />
+
             {/* Initiation Trends Chart */}
             <InitiationTrendsChart
               timeSeries={aggregatedMetrics?.timeSeries || []}
