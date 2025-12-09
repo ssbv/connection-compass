@@ -8,20 +8,26 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
-interface ConnectionFilterProps {
+interface GroupedConnection {
+  person_name: string;
   connections: Connection[];
-  selectedId: string | null;
-  compareId: string | null;
-  onSelectConnection: (id: string | null) => void;
-  onCompareConnection: (id: string | null) => void;
+  latest_updated_at: string;
+}
+
+interface ConnectionFilterProps {
+  groupedConnections: GroupedConnection[];
+  selectedPerson: string | null;
+  comparePerson: string | null;
+  onSelectConnection: (personName: string | null) => void;
+  onCompareConnection: (personName: string | null) => void;
   timeRange: "all" | "30d";
   onTimeRangeChange: (range: "all" | "30d") => void;
 }
 
 export function ConnectionFilter({
-  connections,
-  selectedId,
-  compareId,
+  groupedConnections,
+  selectedPerson,
+  comparePerson,
   onSelectConnection,
   onCompareConnection,
   timeRange,
@@ -51,7 +57,7 @@ export function ConnectionFilter({
 
       {/* Connection Filter */}
       <Select
-        value={selectedId || "all"}
+        value={selectedPerson || "all"}
         onValueChange={(val) => onSelectConnection(val === "all" ? null : val)}
       >
         <SelectTrigger className="w-40">
@@ -59,18 +65,18 @@ export function ConnectionFilter({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Connections</SelectItem>
-          {connections.map(conn => (
-            <SelectItem key={conn.id} value={conn.id}>
-              {conn.person_name}
+          {groupedConnections.map(group => (
+            <SelectItem key={group.person_name} value={group.person_name}>
+              {group.person_name}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
       {/* Compare (optional) */}
-      {selectedId && (
+      {selectedPerson && (
         <Select
-          value={compareId || "none"}
+          value={comparePerson || "none"}
           onValueChange={(val) => onCompareConnection(val === "none" ? null : val)}
         >
           <SelectTrigger className="w-40">
@@ -78,11 +84,11 @@ export function ConnectionFilter({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">No Comparison</SelectItem>
-            {connections
-              .filter(conn => conn.id !== selectedId)
-              .map(conn => (
-                <SelectItem key={conn.id} value={conn.id}>
-                  {conn.person_name}
+            {groupedConnections
+              .filter(group => group.person_name !== selectedPerson)
+              .map(group => (
+                <SelectItem key={group.person_name} value={group.person_name}>
+                  {group.person_name}
                 </SelectItem>
               ))}
           </SelectContent>
