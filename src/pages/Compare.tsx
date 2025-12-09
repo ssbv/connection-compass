@@ -38,10 +38,10 @@ export default function Compare() {
     setLoading(false);
   };
 
-  const handleCompareSelect = (index: 0 | 1, connectionId: string | null) => {
+  const handleCompareSelect = (index: 0 | 1, personName: string | null) => {
     setCompareIds(prev => {
       const newIds = [...prev] as [string | null, string | null];
-      newIds[index] = connectionId;
+      newIds[index] = personName;
       return newIds;
     });
   };
@@ -57,8 +57,9 @@ export default function Compare() {
     setShowComparison(false);
   };
 
-  const compareConnection1 = connections.find(c => c.id === compareIds[0]);
-  const compareConnection2 = connections.find(c => c.id === compareIds[1]);
+  // Get all connections for each selected person
+  const compareConnections1 = connections.filter(c => c.person_name === compareIds[0]);
+  const compareConnections2 = connections.filter(c => c.person_name === compareIds[1]);
 
   return (
     <AppLayout>
@@ -68,7 +69,7 @@ export default function Compare() {
             Compare Connections
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Compare analysis results between two connections side-by-side
+            Compare analysis results between two people side-by-side
           </p>
         </div>
 
@@ -90,10 +91,12 @@ export default function Compare() {
               onClear={handleClearComparison}
             />
 
-            {showComparison && compareConnection1 && compareConnection2 && (
+            {showComparison && compareConnections1.length > 0 && compareConnections2.length > 0 && (
               <ComparisonView
-                connection1={compareConnection1}
-                connection2={compareConnection2}
+                connections1={compareConnections1}
+                connections2={compareConnections2}
+                personName1={compareIds[0]!}
+                personName2={compareIds[1]!}
                 onClose={handleClearComparison}
               />
             )}

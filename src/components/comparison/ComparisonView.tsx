@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Connection, AnalysisResult } from "@/types/analysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,16 +15,61 @@ import {
 } from "recharts";
 
 interface ComparisonViewProps {
-  connection1: Connection;
-  connection2: Connection;
+  connections1: Connection[];
+  connections2: Connection[];
+  personName1: string;
+  personName2: string;
   onClose: () => void;
 }
 
-export function ComparisonView({ connection1, connection2, onClose }: ComparisonViewProps) {
-  const analysis1 = connection1.analysis_data as AnalysisResult | null;
-  const analysis2 = connection2.analysis_data as AnalysisResult | null;
+function calculateAverageScores(connections: Connection[]) {
+  const dimensions = ["safety", "accountability", "emotional_availability", "reciprocity", "clarity", "boundaries", "initiation"] as const;
+  
+  const scores: Record<string, number> = {};
+  let healthScoreSum = 0;
+  let initiationSum = 0;
+  let validCount = 0;
 
-  if (!analysis1 || !analysis2) {
+  connections.forEach(conn => {
+    const analysis = conn.analysis_data as AnalysisResult | null;
+    if (!analysis) return;
+    
+    validCount++;
+    healthScoreSum += analysis.meta?.overall_conversation_health_score || 0;
+    initiationSum += analysis.dynamics?.initiation_balance?.initiated_by_B_percent || 0;
+    
+    dimensions.forEach(dim => {
+      const score = analysis.people?.B?.scores?.[dim]?.score || 0;
+      scores[dim] = (scores[dim] || 0) + score;
+    });
+  });
+
+  if (validCount === 0) return null;
+
+  // Calculate averages
+  dimensions.forEach(dim => {
+    scores[dim] = Math.round(scores[dim] / validCount);
+  });
+
+  return {
+    dimensions: scores,
+    healthScore: Math.round(healthScoreSum / validCount),
+    initiation: Math.round(initiationSum / validCount),
+    reportCount: validCount,
+  };
+}
+
+export function ComparisonView({ 
+  connections1, 
+  connections2, 
+  personName1, 
+  personName2, 
+  onClose 
+}: ComparisonViewProps) {
+  const avg1 = useMemo(() => calculateAverageScores(connections1), [connections1]);
+  const avg2 = useMemo(() => calculateAverageScores(connections2), [connections2]);
+
+  if (!avg1 || !avg2) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
@@ -33,43 +79,40 @@ export function ComparisonView({ connection1, connection2, onClose }: Comparison
     );
   }
 
-  // Build radar chart data
+  // Build radar chart data from averaged scores
   const dimensions = ["safety", "accountability", "emotional_availability", "reciprocity", "clarity", "boundaries", "initiation"];
-  const radarData = dimensions.map(dim => {
-    const dimKey = dim as keyof typeof analysis1.people.B.scores;
-    return {
-      dimension: dim.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase()),
-      [connection1.person_name]: analysis1.people?.B?.scores?.[dimKey]?.score || 0,
-      [connection2.person_name]: analysis2.people?.B?.scores?.[dimKey]?.score || 0,
-    };
-  });
+  const radarData = dimensions.map(dim => ({
+    dimension: dim.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase()),
+    [personName1]: avg1.dimensions[dim] || 0,
+    [personName2]: avg2.dimensions[dim] || 0,
+  }));
 
-  // Compare key metrics
+  // Compare key metrics using averaged values
   const metrics = [
     {
-      label: "Health Score",
-      val1: analysis1.meta?.overall_conversation_health_score,
-      val2: analysis2.meta?.overall_conversation_health_score,
+      label: "Avg Health Score",
+      val1: avg1.healthScore,
+      val2: avg2.healthScore,
     },
     {
-      label: "Safety",
-      val1: analysis1.people?.B?.scores?.safety?.score,
-      val2: analysis2.people?.B?.scores?.safety?.score,
+      label: "Avg Safety",
+      val1: avg1.dimensions.safety,
+      val2: avg2.dimensions.safety,
     },
     {
-      label: "Reciprocity",
-      val1: analysis1.people?.B?.scores?.reciprocity?.score,
-      val2: analysis2.people?.B?.scores?.reciprocity?.score,
+      label: "Avg Reciprocity",
+      val1: avg1.dimensions.reciprocity,
+      val2: avg2.dimensions.reciprocity,
     },
     {
-      label: "Boundaries",
-      val1: analysis1.people?.B?.scores?.boundaries?.score,
-      val2: analysis2.people?.B?.scores?.boundaries?.score,
+      label: "Avg Boundaries",
+      val1: avg1.dimensions.boundaries,
+      val2: avg2.dimensions.boundaries,
     },
     {
-      label: "Your Initiation %",
-      val1: analysis1.dynamics?.initiation_balance?.initiated_by_B_percent,
-      val2: analysis2.dynamics?.initiation_balance?.initiated_by_B_percent,
+      label: "Avg Your Initiation %",
+      val1: avg1.initiation,
+      val2: avg2.initiation,
     },
   ];
 
@@ -85,7 +128,7 @@ export function ComparisonView({ connection1, connection2, onClose }: Comparison
     <Card className="mt-4">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">
-          Comparing: {connection1.person_name} vs {connection2.person_name}
+          Comparing: {personName1} vs {personName2}
         </CardTitle>
         <Badge 
           variant="outline" 
@@ -96,6 +139,13 @@ export function ComparisonView({ connection1, connection2, onClose }: Comparison
         </Badge>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Report counts */}
+        <div className="flex gap-4 text-sm text-muted-foreground">
+          <span>{personName1}: {avg1.reportCount} report{avg1.reportCount > 1 ? 's' : ''}</span>
+          <span>•</span>
+          <span>{personName2}: {avg2.reportCount} report{avg2.reportCount > 1 ? 's' : ''}</span>
+        </div>
+
         {/* Radar Chart Comparison */}
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
@@ -111,15 +161,15 @@ export function ComparisonView({ connection1, connection2, onClose }: Comparison
                 tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
               />
               <Radar
-                name={connection1.person_name}
-                dataKey={connection1.person_name}
+                name={personName1}
+                dataKey={personName1}
                 stroke="hsl(var(--teal))"
                 fill="hsl(var(--teal))"
                 fillOpacity={0.3}
               />
               <Radar
-                name={connection2.person_name}
-                dataKey={connection2.person_name}
+                name={personName2}
+                dataKey={personName2}
                 stroke="hsl(var(--primary))"
                 fill="hsl(var(--primary))"
                 fillOpacity={0.3}
@@ -135,8 +185,8 @@ export function ComparisonView({ connection1, connection2, onClose }: Comparison
             <thead className="bg-muted/50">
               <tr>
                 <th className="text-left p-3 font-medium text-foreground">Metric</th>
-                <th className="text-center p-3 font-medium text-foreground">{connection1.person_name}</th>
-                <th className="text-center p-3 font-medium text-foreground">{connection2.person_name}</th>
+                <th className="text-center p-3 font-medium text-foreground">{personName1}</th>
+                <th className="text-center p-3 font-medium text-foreground">{personName2}</th>
                 <th className="text-center p-3 font-medium text-foreground">Diff</th>
               </tr>
             </thead>
