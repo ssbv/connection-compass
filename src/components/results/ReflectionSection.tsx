@@ -35,6 +35,10 @@ export function ReflectionSection({ reflection }: ReflectionSectionProps) {
       neutral: 'text-muted-foreground'
     };
 
+    if (!Array.isArray(items) || items.length === 0) {
+      return null;
+    }
+
     return (
       <ul className="space-y-1 mt-2">
         {items.map((item, index) => (
@@ -160,7 +164,7 @@ export function ReflectionSection({ reflection }: ReflectionSectionProps) {
             Questions for Reflection
           </h4>
           <ul className="space-y-2">
-            {reflection.reflection_prompts.map((prompt, index) => (
+            {Array.isArray(reflection.reflection_prompts) && reflection.reflection_prompts.map((prompt, index) => (
               <li 
                 key={index}
                 className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/50 border border-border italic"
