@@ -127,7 +127,13 @@ export default function Patterns() {
     let repairOthers = 0;
     let count = 0;
 
-    const timeSeries: TimeSeriesPoint[] = [];
+    // Build time series with date aggregation
+    const timeSeriesMap = new Map<string, {
+      date: string;
+      initiation_user_values: number[];
+      initiation_others_values: number[];
+      connection_ids: string[];
+    }>();
 
     filteredConnections.forEach(conn => {
       const data = conn.analysis_data;
@@ -146,18 +152,35 @@ export default function Patterns() {
       if (data.dynamics.emotional_labor.who_repairs_more === "B") repairUser++;
       else if (data.dynamics.emotional_labor.who_repairs_more === "A") repairOthers++;
 
-      // Build time series
+      // Aggregate by date
       if (conn.analysis_date) {
-        timeSeries.push({
-          date: conn.analysis_date,
-          initiation_user: initB,
-          initiation_others: initA,
-          connection_id: conn.id
-        });
+        const dateKey = conn.analysis_date;
+        const existing = timeSeriesMap.get(dateKey) || {
+          date: dateKey,
+          initiation_user_values: [],
+          initiation_others_values: [],
+          connection_ids: []
+        };
+        
+        existing.initiation_user_values.push(initB);
+        existing.initiation_others_values.push(initA);
+        existing.connection_ids.push(conn.id);
+        
+        timeSeriesMap.set(dateKey, existing);
       }
 
       count++;
     });
+
+    // Convert to array with averaged values
+    const timeSeries: TimeSeriesPoint[] = Array.from(timeSeriesMap.values())
+      .map(entry => ({
+        date: entry.date,
+        initiation_user: Math.round(entry.initiation_user_values.reduce((a, b) => a + b, 0) / entry.initiation_user_values.length),
+        initiation_others: Math.round(entry.initiation_others_values.reduce((a, b) => a + b, 0) / entry.initiation_others_values.length),
+        connection_id: entry.connection_ids[0]
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     const avgInitiationUser = count > 0 ? totalInitiationUser / count : 0;
     const avgInitiationOthers = count > 0 ? totalInitiationOthers / count : 0;
@@ -174,7 +197,7 @@ export default function Patterns() {
       repairUser,
       repairOthers,
       burnoutRisk,
-      timeSeries: timeSeries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+      timeSeries,
       connectionCount: count
     };
   }, [connections, selectedPersonName, timeRange]);
