@@ -114,11 +114,12 @@ export function EmotionalStateHeatMap({
           <h4 className="text-sm font-medium mb-3">Per-Connection Emotional Fingerprint</h4>
           <div className="space-y-4">
             {connections.slice(0, 5).map(conn => {
-              const states = statesByConnection[conn.id] || {};
+              // Use person_name as the lookup key instead of conn.id
+              const states = statesByConnection[conn.person_name] || {};
               const maxValue = Math.max(...Object.values(states), 1);
               
               return (
-                <div key={conn.id} className="p-3 rounded-lg border border-border bg-card">
+                <div key={conn.person_name} className="p-3 rounded-lg border border-border bg-card">
                   <p className="text-sm font-medium mb-2">{conn.person_name}</p>
                   <div className="grid grid-cols-9 gap-1">
                     {EMOTIONAL_STATES.map(state => {
