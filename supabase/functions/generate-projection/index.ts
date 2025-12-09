@@ -28,12 +28,15 @@ serve(async (req) => {
   }
 
   try {
-    const { connections, timeframe, connection_id } = await req.json();
+    const { connections, timeframe, connection_id, user_id } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+    
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
     // Build context from connections
     const connectionSummaries = (connections as ConnectionData[]).map((conn) => {
@@ -146,13 +149,44 @@ Return ONLY the JSON object, no additional text.`;
     }
 
     const projection = JSON.parse(jsonMatch[0]);
+    const generated_at = new Date().toISOString();
     
     console.log('Projection generated successfully');
+
+    // Save projection to database if user_id is provided
+    if (user_id && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const saveResponse = await fetch(`${SUPABASE_URL}/rest/v1/projections`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_SERVICE_ROLE_KEY,
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            user_id,
+            connection_id: connection_id || null,
+            projection_type: connection_id ? 'per_connection' : 'global',
+            projection_data: projection,
+            generated_at
+          })
+        });
+        
+        if (!saveResponse.ok) {
+          console.error('Failed to save projection:', await saveResponse.text());
+        } else {
+          console.log('Projection saved to database');
+        }
+      } catch (saveError) {
+        console.error('Error saving projection:', saveError);
+      }
+    }
 
     return new Response(JSON.stringify({ 
       projection,
       timeframe,
-      generated_at: new Date().toISOString()
+      generated_at
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

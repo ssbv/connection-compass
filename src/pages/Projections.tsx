@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { GlobalForecastPanel } from "@/components/projections/GlobalForecastPanel";
 import { ConnectionProjectionSelector } from "@/components/projections/ConnectionProjectionSelector";
 import { DualPerspectiveModeler } from "@/components/projections/DualPerspectiveModeler";
+import { InstantInsightsPanel } from "@/components/projections/InstantInsightsPanel";
 import { Compass, AlertCircle, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +19,24 @@ interface Connection {
   analysis_data: AnalysisResult | null;
 }
 
+interface UserPatterns {
+  burnout_risk_score: number | null;
+  emotional_labor_score: number | null;
+  initiation_ratio_user: number | null;
+  initiation_ratio_others: number | null;
+  repair_load_user: number | null;
+  repair_load_others: number | null;
+  clarity_load_user: number | null;
+  clarity_load_others: number | null;
+}
+
+interface SavedProjection {
+  id: string;
+  projection_data: ProjectionData;
+  projection_type: string;
+  generated_at: string;
+}
+
 export default function Projections() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -27,10 +46,14 @@ export default function Projections() {
   const [confidence, setConfidence] = useState<'low' | 'medium' | 'high'>('low');
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [userPatterns, setUserPatterns] = useState<UserPatterns | null>(null);
+  const [lastGeneratedAt, setLastGeneratedAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
       fetchConnections();
+      fetchUserPatterns();
+      fetchSavedProjection();
     }
   }, [user]);
 
@@ -56,6 +79,46 @@ export default function Projections() {
     }
   };
 
+  const fetchUserPatterns = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_patterns')
+        .select('burnout_risk_score, emotional_labor_score, initiation_ratio_user, initiation_ratio_others, repair_load_user, repair_load_others, clarity_load_user, clarity_load_others')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setUserPatterns(data as UserPatterns);
+      }
+    } catch (error) {
+      console.error('Error fetching user patterns:', error);
+    }
+  };
+
+  const fetchSavedProjection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projections')
+        .select('id, projection_data, projection_type, generated_at')
+        .eq('user_id', user?.id)
+        .is('connection_id', null)
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        const projectionData = data.projection_data as unknown as ProjectionData;
+        setProjection(projectionData);
+        setConfidence(projectionData.confidence || 'medium');
+        setLastGeneratedAt(data.generated_at);
+      }
+    } catch (error) {
+      console.error('Error fetching saved projection:', error);
+    }
+  };
+
   const generateProjection = async () => {
     if (connections.length === 0) {
       toast.error('No analyzed connections available for projection');
@@ -75,7 +138,8 @@ export default function Projections() {
             analysis_data: c.analysis_data
           })),
           timeframe,
-          connection_id: selectedConnection
+          connection_id: selectedConnection,
+          user_id: user?.id
         }
       });
 
@@ -88,6 +152,7 @@ export default function Projections() {
 
       setProjection(data.projection);
       setConfidence(data.projection.confidence || 'medium');
+      setLastGeneratedAt(data.generated_at);
       toast.success('Projection generated successfully');
     } catch (error) {
       console.error('Error generating projection:', error);
@@ -156,13 +221,28 @@ export default function Projections() {
           </Card>
         )}
 
+        {/* Instant Insights - Always visible */}
+        <InstantInsightsPanel 
+          connections={connections as any}
+          userPatterns={userPatterns}
+          isLoading={isLoading}
+        />
+
         {/* Connection Selector */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-medium flex items-center gap-2">
               <Compass className="h-5 w-5 text-primary" />
-              Generate Projection
+              AI Projection
+              {lastGeneratedAt && (
+                <span className="text-xs font-normal text-muted-foreground ml-2">
+                  Last generated: {new Date(lastGeneratedAt).toLocaleDateString()}
+                </span>
+              )}
             </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Generate deeper AI-powered forecasts for specific timeframes
+            </p>
           </CardHeader>
           <CardContent>
             <ConnectionProjectionSelector
