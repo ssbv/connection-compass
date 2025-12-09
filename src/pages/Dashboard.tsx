@@ -31,8 +31,8 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* File Tiles */}
-        <FileTiles />
+        {/* File Tiles - only show before results are available */}
+        {!hasResults && <FileTiles />}
 
         {/* Loading State */}
         {isAnalyzing && (
