@@ -19,19 +19,25 @@ interface PersonPanelProps {
 export function PersonPanel({ person, examples, title }: PersonPanelProps) {
   const [showExamples, setShowExamples] = useState(false);
 
-  const radarData = person.radar_chart.dimensions.map((dim, i) => ({
-    dimension: dim.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-    value: person.radar_chart.values[i],
-    fullMark: 100,
-  }));
+  const radarData = Array.isArray(person.radar_chart?.dimensions) 
+    ? person.radar_chart.dimensions.map((dim, i) => ({
+        dimension: dim.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        value: person.radar_chart.values[i] ?? 0,
+        fullMark: 100,
+      }))
+    : [];
 
   const getAllExamples = () => {
     const allExamples: { dimension: string; snippet: string; comment: string; direction: string }[] = [];
-    Object.entries(examples).forEach(([dimension, items]) => {
-      items.forEach((item) => {
-        allExamples.push({ dimension, ...item });
+    if (examples) {
+      Object.entries(examples).forEach(([dimension, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach((item) => {
+            allExamples.push({ dimension, ...item });
+          });
+        }
       });
-    });
+    }
     return allExamples;
   };
 
@@ -101,7 +107,7 @@ export function PersonPanel({ person, examples, title }: PersonPanelProps) {
           <p className="text-sm text-foreground">{person.narrative_summary}</p>
 
           {/* Strengths */}
-          {person.strengths.length > 0 && (
+          {Array.isArray(person.strengths) && person.strengths.length > 0 && (
             <div>
               <span className="text-xs font-medium text-muted-foreground">Strengths</span>
               <ul className="mt-1 space-y-1">
@@ -116,7 +122,7 @@ export function PersonPanel({ person, examples, title }: PersonPanelProps) {
           )}
 
           {/* Risks */}
-          {person.risks.length > 0 && (
+          {Array.isArray(person.risks) && person.risks.length > 0 && (
             <div>
               <span className="text-xs font-medium text-muted-foreground">Risks / Watch-outs</span>
               <ul className="mt-1 space-y-1">

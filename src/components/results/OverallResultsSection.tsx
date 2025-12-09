@@ -26,17 +26,25 @@ export function OverallResultsSection() {
   const getAllExamples = () => {
     const examples: { person: string; dimension: string; snippet: string; comment: string; direction: string }[] = [];
     
-    Object.entries(example_attributions.by_dimension.A).forEach(([dimension, items]) => {
-      items.forEach((item) => {
-        examples.push({ person: "Them", dimension, ...item });
+    if (example_attributions?.by_dimension?.A) {
+      Object.entries(example_attributions.by_dimension.A).forEach(([dimension, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach((item) => {
+            examples.push({ person: "Them", dimension, ...item });
+          });
+        }
       });
-    });
+    }
     
-    Object.entries(example_attributions.by_dimension.B).forEach(([dimension, items]) => {
-      items.forEach((item) => {
-        examples.push({ person: "You", dimension, ...item });
+    if (example_attributions?.by_dimension?.B) {
+      Object.entries(example_attributions.by_dimension.B).forEach(([dimension, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach((item) => {
+            examples.push({ person: "You", dimension, ...item });
+          });
+        }
       });
-    });
+    }
 
     return examples.slice(0, 6);
   };
@@ -120,7 +128,7 @@ export function OverallResultsSection() {
             </div>
 
             {/* Headline Flags */}
-            {overall_results.headline_flags.length > 0 && (
+            {Array.isArray(overall_results.headline_flags) && overall_results.headline_flags.length > 0 && (
               <div className="space-y-2">
                 <span className="text-xs text-muted-foreground">Key Patterns</span>
                 <ul className="space-y-1">

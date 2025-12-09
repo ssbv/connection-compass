@@ -16,12 +16,19 @@ export function DynamicsSection() {
     // Get examples related to dynamics (boundaries, initiation)
     ["boundaries", "initiation"].forEach((dim) => {
       const dimKey = dim as keyof typeof example_attributions.by_dimension.A;
-      example_attributions.by_dimension.A[dimKey]?.forEach((item) => {
-        examples.push({ person: "Them", dimension: dim, ...item });
-      });
-      example_attributions.by_dimension.B[dimKey]?.forEach((item) => {
-        examples.push({ person: "You", dimension: dim, ...item });
-      });
+      const itemsA = example_attributions?.by_dimension?.A?.[dimKey];
+      const itemsB = example_attributions?.by_dimension?.B?.[dimKey];
+      
+      if (Array.isArray(itemsA)) {
+        itemsA.forEach((item) => {
+          examples.push({ person: "Them", dimension: dim, ...item });
+        });
+      }
+      if (Array.isArray(itemsB)) {
+        itemsB.forEach((item) => {
+          examples.push({ person: "You", dimension: dim, ...item });
+        });
+      }
     });
 
     return examples.slice(0, 6);
@@ -111,7 +118,7 @@ export function DynamicsSection() {
             <div>
               <h4 className="text-sm font-medium text-foreground mb-2">Boundary Interaction</h4>
               <p className="text-sm text-foreground">{dynamics.boundary_interaction.summary}</p>
-              {dynamics.boundary_interaction.flags.length > 0 && (
+              {Array.isArray(dynamics.boundary_interaction.flags) && dynamics.boundary_interaction.flags.length > 0 && (
                 <ul className="mt-2 space-y-1">
                   {dynamics.boundary_interaction.flags.map((flag, i) => (
                     <li key={i} className="text-sm text-foreground flex items-start gap-2">
