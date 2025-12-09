@@ -121,6 +121,7 @@ export interface ProjectionData {
   secure_connection_likelihood: number;
   emotional_safety_likelihood: number;
   long_term_viability: number;
+  confidence?: 'low' | 'medium' | 'high';
   summary: string;
   scenarios?: {
     both_unchanged: string;
