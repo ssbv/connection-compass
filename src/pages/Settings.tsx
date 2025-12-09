@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,7 @@ export default function Settings() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="p-6 lg:p-10 max-w-2xl mx-auto space-y-8">
         <h1 className="text-2xl font-semibold text-foreground">Settings</h1>
 
@@ -156,6 +158,7 @@ export default function Settings() {
           </AlertDialog>
         </div>
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }

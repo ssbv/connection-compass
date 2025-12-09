@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { EmotionalImprintLedger } from "@/components/emotional/EmotionalImprintLedger";
 import { RepairCompletionTracker } from "@/components/emotional/RepairCompletionTracker";
 import { SelfStabilizationIndicators } from "@/components/emotional/SelfStabilizationIndicators";
@@ -419,6 +420,7 @@ export default function EmotionalGrowth() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="p-4 space-y-4">
         {/* Print Header */}
         <div className="emotional-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
@@ -518,6 +520,7 @@ export default function EmotionalGrowth() {
           </>
         )}
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }

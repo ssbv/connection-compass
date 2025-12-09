@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -274,6 +275,7 @@ export default function Projections() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="p-4 space-y-4">
         {/* Print Header */}
         <div className="projections-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
@@ -415,6 +417,7 @@ export default function Projections() {
           </CardContent>
         </Card>
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }
