@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { GlobalForecastPanel } from "@/components/projections/GlobalForecastPane
 import { ConnectionProjectionSelector } from "@/components/projections/ConnectionProjectionSelector";
 import { DualPerspectiveModeler } from "@/components/projections/DualPerspectiveModeler";
 import { InstantInsightsPanel } from "@/components/projections/InstantInsightsPanel";
-import { Compass, AlertCircle, FileDown } from "lucide-react";
+import { Compass, AlertCircle, FileDown, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ interface Connection {
   id: string;
   person_name: string;
   analysis_data: AnalysisResult | null;
+  updated_at: string;
 }
 
 interface UserPatterns {
@@ -49,32 +50,65 @@ export default function Projections() {
   const [userPatterns, setUserPatterns] = useState<UserPatterns | null>(null);
   const [lastGeneratedAt, setLastGeneratedAt] = useState<string | null>(null);
 
+  const previousConnectionRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (user) {
       fetchConnections();
       fetchUserPatterns();
-      fetchSavedProjection();
     }
   }, [user]);
 
-  // Auto-generate projection when connections load and no saved projection exists
+  // Auto-generate or load cached projection when connections load or selection changes
   useEffect(() => {
-    if (
-      !isLoading &&
-      connections.length > 0 &&
-      !projection &&
-      !isGenerating
-    ) {
+    if (!isLoading && connections.length > 0 && !isGenerating) {
+      handleProjectionLoad();
+    }
+  }, [isLoading, connections.length, selectedConnection]);
+
+  const handleProjectionLoad = async () => {
+    // Check if selection actually changed
+    if (previousConnectionRef.current === selectedConnection && projection) {
+      return;
+    }
+    previousConnectionRef.current = selectedConnection;
+
+    // Fetch saved projection for current selection
+    const savedProjection = await fetchSavedProjection(selectedConnection);
+    
+    if (savedProjection) {
+      // Check if connection data has been updated since projection was generated
+      const selectedConn = selectedConnection 
+        ? connections.find(c => c.id === selectedConnection)
+        : null;
+      
+      if (selectedConn) {
+        const connectionUpdatedAt = new Date(selectedConn.updated_at).getTime();
+        const projectionGeneratedAt = new Date(savedProjection.generated_at).getTime();
+        
+        if (connectionUpdatedAt > projectionGeneratedAt) {
+          // Connection has newer data, regenerate
+          generateProjection();
+          return;
+        }
+      }
+      
+      // Use cached projection
+      setProjection(savedProjection.projection_data);
+      setConfidence(savedProjection.projection_data.confidence || 'medium');
+      setLastGeneratedAt(savedProjection.generated_at);
+    } else {
+      // No saved projection, generate new one
       generateProjection();
     }
-  }, [isLoading, connections.length, projection]);
+  };
 
   const fetchConnections = async () => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('connections')
-        .select('id, person_name, analysis_data')
+        .select('id, person_name, analysis_data, updated_at')
         .eq('user_id', user?.id)
         .not('analysis_data', 'is', null);
 
@@ -108,26 +142,34 @@ export default function Projections() {
     }
   };
 
-  const fetchSavedProjection = async () => {
+  const fetchSavedProjection = async (connectionId: string | null): Promise<SavedProjection | null> => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('projections')
         .select('id, projection_data, projection_type, generated_at')
         .eq('user_id', user?.id)
-        .is('connection_id', null)
         .order('generated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .limit(1);
+
+      if (connectionId) {
+        query = query.eq('connection_id', connectionId);
+      } else {
+        query = query.is('connection_id', null);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
       if (data) {
-        const projectionData = data.projection_data as unknown as ProjectionData;
-        setProjection(projectionData);
-        setConfidence(projectionData.confidence || 'medium');
-        setLastGeneratedAt(data.generated_at);
+        return {
+          ...data,
+          projection_data: data.projection_data as unknown as ProjectionData
+        };
       }
+      return null;
     } catch (error) {
       console.error('Error fetching saved projection:', error);
+      return null;
     }
   };
 
@@ -242,18 +284,27 @@ export default function Projections() {
 
         {/* Connection Selector */}
         <Card>
-          <CardHeader>
+        <CardHeader>
             <CardTitle className="text-lg font-medium flex items-center gap-2">
-              <Compass className="h-5 w-5 text-primary" />
+              {isGenerating ? (
+                <Loader2 className="h-5 w-5 text-primary animate-spin" />
+              ) : (
+                <Compass className="h-5 w-5 text-primary" />
+              )}
               AI Projection
-              {lastGeneratedAt && (
+              {isGenerating && (
+                <span className="text-xs font-normal text-muted-foreground ml-2">
+                  Generating...
+                </span>
+              )}
+              {!isGenerating && lastGeneratedAt && (
                 <span className="text-xs font-normal text-muted-foreground ml-2">
                   Last generated: {new Date(lastGeneratedAt).toLocaleDateString()}
                 </span>
               )}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Generate deeper AI-powered forecasts for specific timeframes
+              AI-powered forecasts for specific timeframes
             </p>
           </CardHeader>
           <CardContent>
@@ -261,9 +312,6 @@ export default function Projections() {
               connections={connections}
               selectedConnection={selectedConnection}
               onSelect={setSelectedConnection}
-              onGenerate={generateProjection}
-              isGenerating={isGenerating}
-              disabled={!hasEnoughData}
             />
           </CardContent>
         </Card>
