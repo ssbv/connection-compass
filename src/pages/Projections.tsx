@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { GlobalForecastPanel } from "@/components/projections/GlobalForecastPanel";
 import { ConnectionProjectionSelector } from "@/components/projections/ConnectionProjectionSelector";
 import { DualPerspectiveModeler } from "@/components/projections/DualPerspectiveModeler";
-import { Compass, AlertCircle } from "lucide-react";
+import { Compass, AlertCircle, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -98,16 +99,42 @@ export default function Projections() {
 
   const hasEnoughData = connections.length >= 1;
 
+  const handleExportPDF = () => {
+    window.print();
+  };
+
   return (
     <AppLayout>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">
-            Future Projection Engine
-          </h1>
+        {/* Print Header */}
+        <div className="projections-print-header hidden print:block text-center mb-6 pb-4 border-b border-border">
+          <h1 className="text-xl font-semibold">Connection Lens - Projection Report</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            AI-powered relational forecasts based on your behavioral patterns
+            Generated on {new Date().toLocaleDateString()}
           </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+          <div>
+            <h1 className="text-2xl font-semibold text-foreground">
+              Future Projection Engine
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              AI-powered relational forecasts based on your behavioral patterns
+            </p>
+          </div>
+
+          {projection && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              className="gap-2"
+            >
+              <FileDown className="h-4 w-4" />
+              Export PDF
+            </Button>
+          )}
         </div>
 
         {!hasEnoughData && (

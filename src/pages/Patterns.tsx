@@ -9,6 +9,8 @@ import { EmotionalLaborEngine } from "@/components/patterns/EmotionalLaborEngine
 import { EmotionalStateHeatMap } from "@/components/patterns/EmotionalStateHeatMap";
 import { ConnectionFilter } from "@/components/patterns/ConnectionFilter";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { FileDown } from "lucide-react";
 
 export default function Patterns() {
   const { user } = useAuth();
@@ -175,11 +177,23 @@ export default function Patterns() {
     );
   }
 
+  const handleExportPDF = () => {
+    window.print();
+  };
+
   return (
     <AppLayout>
       <div className="p-6 space-y-6">
+        {/* Print Header */}
+        <div className="patterns-print-header hidden print:block text-center mb-6 pb-4 border-b border-border">
+          <h1 className="text-xl font-semibold">Connection Lens - Pattern Analysis Report</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Generated on {new Date().toLocaleDateString()}
+          </p>
+        </div>
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
           <div>
             <h1 className="text-2xl font-semibold text-foreground">
               Global Pattern Tracker
@@ -189,6 +203,22 @@ export default function Patterns() {
             </p>
           </div>
           
+          <div className="flex items-center gap-3">
+            {connections.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                className="gap-2"
+              >
+                <FileDown className="h-4 w-4" />
+                Export PDF
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <div className="print:hidden">
           <ConnectionFilter
             connections={connections}
             selectedId={selectedConnectionId}
