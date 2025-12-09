@@ -1,7 +1,7 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
-import { Home, TrendingUp, Compass, Heart, GitCompare, Users, Settings, LogOut } from "lucide-react";
+import { Home, TrendingUp, Compass, Heart, GitCompare, Users, Settings, LogOut, LogIn } from "lucide-react";
 
 const mainNavItems = [
   { id: "home", label: "Home", path: "/dashboard", icon: Home },
@@ -86,20 +86,30 @@ export function Sidebar() {
         </ul>
       </nav>
 
-      {/* User & Logout */}
+      {/* User & Login/Logout */}
       <div className="p-3 pb-6">
         {user && (
           <p className="text-xs text-sidebar-foreground/60 mb-2 px-3 truncate">
             {user.email}
           </p>
         )}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-destructive hover:bg-sidebar-accent rounded-md transition-colors"
-        >
-          <LogOut className="h-4 w-4" />
-          Log Out
-        </button>
+        {user ? (
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-destructive hover:bg-sidebar-accent rounded-md transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Log Out
+          </button>
+        ) : (
+          <Link
+            to="/auth"
+            className="w-full flex items-center gap-2 text-left px-3 py-2 text-sm text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent rounded-md transition-colors"
+          >
+            <LogIn className="h-4 w-4" />
+            Log In
+          </Link>
+        )}
       </div>
     </aside>
   );

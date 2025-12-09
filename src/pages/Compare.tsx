@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Connection } from "@/types/analysis";
@@ -63,6 +64,7 @@ export default function Compare() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="p-4 space-y-4">
         <div>
           <h1 className="text-xl font-semibold text-foreground">
@@ -103,6 +105,7 @@ export default function Compare() {
           </div>
         )}
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }

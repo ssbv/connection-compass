@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Connection, AnalysisResult, TimeSeriesPoint } from "@/types/analysis";
@@ -261,6 +262,7 @@ export default function Patterns() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="p-4 space-y-4">
         {/* Print Header */}
         <div className="patterns-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
@@ -357,6 +359,7 @@ export default function Patterns() {
           </div>
         )}
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, AnalysisResult, Snapshot } from "@/types/analysis";
@@ -395,6 +396,7 @@ export default function Connections() {
 
   return (
     <AppLayout>
+      <AuthGate>
       <div className="h-full flex flex-col overflow-hidden">
         <div className="flex-1 flex flex-col p-6 lg:p-10 max-w-7xl mx-auto w-full min-h-0">
         <h1 className="text-xl font-semibold text-foreground mb-4 connections-title">Connections</h1>
@@ -743,6 +745,7 @@ export default function Connections() {
         )}
         </div>
       </div>
+      </AuthGate>
     </AppLayout>
   );
 }
