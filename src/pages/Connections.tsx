@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
 import { Button } from "@/components/ui/button";
-import { Trash2, Download } from "lucide-react";
+import { Trash2, Download, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Connections() {
@@ -17,6 +17,7 @@ export default function Connections() {
   const [loading, setLoading] = useState(true);
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<Connection | null>(null);
+  const [reanalyzing, setReanalyzing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -225,6 +226,142 @@ export default function Connections() {
     window.print();
   };
 
+  const handleReanalyze = async (connectionId: string) => {
+    if (!user || reanalyzing) return;
+    
+    setReanalyzing(true);
+    toast.info("Re-analyzing conversation...");
+    
+    try {
+      // Fetch snapshots for this connection
+      const { data: snapshotsData, error: snapshotsError } = await supabase
+        .from("snapshots")
+        .select("*")
+        .eq("connection_id", connectionId);
+      
+      if (snapshotsError) throw snapshotsError;
+      
+      if (!snapshotsData || snapshotsData.length === 0) {
+        toast.error("No snapshots found for this connection");
+        setReanalyzing(false);
+        return;
+      }
+      
+      // Gather conversation text from snapshots
+      let conversationText = "";
+      let imageBase64: string | undefined;
+      
+      for (const snapshot of snapshotsData) {
+        // If snapshot has extracted text, use it
+        if (snapshot.extracted_text) {
+          conversationText += snapshot.extracted_text + "\n\n";
+        } else if (snapshot.file_url && snapshot.file_type?.startsWith("image/")) {
+          // For images, fetch from storage and convert to base64
+          try {
+            const response = await fetch(snapshot.file_url);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            imageBase64 = await new Promise((resolve) => {
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(blob);
+            });
+          } catch (e) {
+            console.error("Failed to fetch image:", e);
+          }
+        }
+      }
+      
+      if (!conversationText && !imageBase64) {
+        toast.error("No conversation data available for re-analysis");
+        setReanalyzing(false);
+        return;
+      }
+      
+      // Call the analyze-conversation edge function
+      const { data: analysisResult, error: analysisError } = await supabase.functions.invoke(
+        "analyze-conversation",
+        {
+          body: {
+            conversationText: conversationText || undefined,
+            imageBase64: imageBase64,
+          },
+        }
+      );
+      
+      if (analysisError) throw analysisError;
+      
+      if (!analysisResult) {
+        throw new Error("No analysis result returned");
+      }
+      
+      // Update the connection with new analysis data
+      const { error: updateError } = await supabase
+        .from("connections")
+        .update({
+          analysis_data: analysisResult,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", connectionId);
+      
+      if (updateError) throw updateError;
+      
+      // Update local state
+      setConnections(prev => 
+        prev.map(c => 
+          c.id === connectionId 
+            ? { ...c, analysis_data: analysisResult } 
+            : c
+        )
+      );
+      
+      // Update selected connection if it's the one we re-analyzed
+      if (selectedConnection?.id === connectionId) {
+        setSelectedConnection(prev => 
+          prev ? { ...prev, analysis_data: analysisResult } : null
+        );
+      }
+      
+      // Extract and save emotional data
+      const emotionalExtraction = analysisResult?.emotional_extraction;
+      if (emotionalExtraction) {
+        // Save emotional states
+        const userStates = emotionalExtraction.user_states || [];
+        const intensity = emotionalExtraction.user_intensity || 3;
+        
+        for (const stateType of userStates) {
+          if (stateType && stateType !== "unclear") {
+            await supabase.from("emotional_states").insert({
+              user_id: user.id,
+              connection_id: connectionId,
+              state_type: stateType,
+              intensity: intensity,
+            });
+          }
+        }
+        
+        // Save repair signals
+        const repairSignals = emotionalExtraction.repair_signals || [];
+        for (const signal of repairSignals) {
+          if (signal?.type) {
+            await supabase.from("repair_attempts").insert({
+              user_id: user.id,
+              connection_id: connectionId,
+              attempt_type: signal.type,
+              status: signal.reciprocated ? "repaired" : "unresolved",
+              notes: signal.notes || null,
+            });
+          }
+        }
+      }
+      
+      toast.success("Re-analysis complete! Emotional data updated.");
+    } catch (error) {
+      console.error("Re-analysis error:", error);
+      toast.error("Failed to re-analyze conversation");
+    } finally {
+      setReanalyzing(false);
+    }
+  };
 
   return (
     <AppLayout>
@@ -382,7 +519,21 @@ export default function Connections() {
                   <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-lg rounded-t-none p-4 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                      <div className="flex justify-end mt-4 pt-3 border-t border-border">
+                      <div className="flex justify-end gap-2 mt-4 pt-3 border-t border-border">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReanalyze(selectedConnection.id)}
+                          disabled={reanalyzing}
+                          className="text-xs"
+                        >
+                          {reanalyzing ? (
+                            <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-3 w-3 mr-1.5" />
+                          )}
+                          Re-analyze
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -497,7 +648,20 @@ export default function Connections() {
                   <div className="flex-1 min-h-0 overflow-y-auto">
                     <div className="bg-panel rounded-xl rounded-t-none p-6 pt-2">
                       <ConnectionFullReport analysis={selectedConnection.analysis_data as AnalysisResult} />
-                      <div className="flex justify-end mt-6 pt-4 border-t border-border">
+                      <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-border">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleReanalyze(selectedConnection.id)}
+                          disabled={reanalyzing}
+                        >
+                          {reanalyzing ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                          )}
+                          Re-analyze
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
