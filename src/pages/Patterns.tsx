@@ -12,12 +12,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 
+interface GroupedConnection {
+  person_name: string;
+  connections: Connection[];
+  latest_updated_at: string;
+}
+
 export default function Patterns() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
-  const [compareConnectionId, setCompareConnectionId] = useState<string | null>(null);
+  const [selectedPersonName, setSelectedPersonName] = useState<string | null>(null);
+  const [comparePersonName, setComparePersonName] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<"all" | "30d">("all");
 
   useEffect(() => {
@@ -71,11 +77,33 @@ export default function Patterns() {
     }
   };
 
+  // Group connections by person_name for unique dropdown
+  const groupedConnections = useMemo(() => {
+    const groups: Record<string, GroupedConnection> = {};
+    
+    connections.forEach(conn => {
+      if (!groups[conn.person_name]) {
+        groups[conn.person_name] = {
+          person_name: conn.person_name,
+          connections: [],
+          latest_updated_at: conn.updated_at
+        };
+      }
+      groups[conn.person_name].connections.push(conn);
+      
+      if (conn.updated_at > groups[conn.person_name].latest_updated_at) {
+        groups[conn.person_name].latest_updated_at = conn.updated_at;
+      }
+    });
+    
+    return Object.values(groups);
+  }, [connections]);
+
   // Calculate aggregated metrics
   const aggregatedMetrics = useMemo(() => {
     const filteredConnections = connections.filter(conn => {
       if (!conn.analysis_data) return false;
-      if (selectedConnectionId && conn.id !== selectedConnectionId) return false;
+      if (selectedPersonName && conn.person_name !== selectedPersonName) return false;
       
       if (timeRange === "30d" && conn.analysis_date) {
         const thirtyDaysAgo = new Date();
@@ -148,7 +176,7 @@ export default function Patterns() {
       timeSeries: timeSeries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
       connectionCount: count
     };
-  }, [connections, selectedConnectionId, timeRange]);
+  }, [connections, selectedPersonName, timeRange]);
 
   // Get emotional states for heat map
   const emotionalStatesData = useMemo(() => {
@@ -242,11 +270,11 @@ export default function Patterns() {
 
         <div className="print:hidden">
           <ConnectionFilter
-            connections={connections}
-            selectedId={selectedConnectionId}
-            compareId={compareConnectionId}
-            onSelectConnection={setSelectedConnectionId}
-            onCompareConnection={setCompareConnectionId}
+            groupedConnections={groupedConnections}
+            selectedPerson={selectedPersonName}
+            comparePerson={comparePersonName}
+            onSelectConnection={setSelectedPersonName}
+            onCompareConnection={setComparePersonName}
             timeRange={timeRange}
             onTimeRangeChange={setTimeRange}
           />
