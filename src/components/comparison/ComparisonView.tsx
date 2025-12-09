@@ -36,10 +36,10 @@ function calculateAverageScores(connections: Connection[]) {
     
     validCount++;
     healthScoreSum += analysis.meta?.overall_conversation_health_score || 0;
-    initiationSum += analysis.dynamics?.initiation_balance?.initiated_by_B_percent || 0;
+    initiationSum += analysis.dynamics?.initiation_balance?.initiated_by_A_percent || 0;
     
     dimensions.forEach(dim => {
-      const score = analysis.people?.B?.scores?.[dim]?.score || 0;
+      const score = analysis.people?.A?.scores?.[dim]?.score || 0;
       scores[dim] = (scores[dim] || 0) + score;
     });
   });
@@ -110,7 +110,7 @@ export function ComparisonView({
       val2: avg2.dimensions.boundaries,
     },
     {
-      label: "Avg Your Initiation %",
+      label: "Avg Their Initiation %",
       val1: avg1.initiation,
       val2: avg2.initiation,
     },
@@ -128,6 +128,7 @@ export function ComparisonView({
     <Card className="mt-4">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">
+          Comparing Their Behavior:
           Comparing: {personName1} vs {personName2}
         </CardTitle>
         <Badge 
