@@ -29,6 +29,28 @@ export default function EmotionalGrowth() {
   useEffect(() => {
     if (user) {
       fetchConnections();
+
+      // Set up real-time subscription for connection changes
+      const channel = supabase
+        .channel('emotional-growth-connections')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'connections',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            console.log('Connection changed, refetching emotional growth data...');
+            fetchConnections();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
