@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,12 @@ interface Connection {
   person_name: string;
   analysis_data: AnalysisResult | null;
   updated_at: string;
+}
+
+interface GroupedConnection {
+  person_name: string;
+  connections: Connection[];
+  latest_updated_at: string;
 }
 
 interface UserPatterns {
@@ -41,7 +47,7 @@ interface SavedProjection {
 export default function Projections() {
   const { user } = useAuth();
   const [connections, setConnections] = useState<Connection[]>([]);
-  const [selectedConnection, setSelectedConnection] = useState<string | null>(null);
+  const [selectedConnection, setSelectedConnection] = useState<string | null>(null); // Now stores person_name
   const [timeframe, setTimeframe] = useState<'3m' | '6m' | '12m'>('3m');
   const [projection, setProjection] = useState<ProjectionData | null>(null);
   const [confidence, setConfidence] = useState<'low' | 'medium' | 'high'>('low');
@@ -51,6 +57,36 @@ export default function Projections() {
   const [lastGeneratedAt, setLastGeneratedAt] = useState<string | null>(null);
 
   const previousConnectionRef = useRef<string | null>(null);
+
+  // Group connections by person_name for unique dropdown entries
+  const groupedConnections = useMemo<GroupedConnection[]>(() => {
+    const groups: Record<string, GroupedConnection> = {};
+    
+    connections.forEach(conn => {
+      if (!groups[conn.person_name]) {
+        groups[conn.person_name] = {
+          person_name: conn.person_name,
+          connections: [],
+          latest_updated_at: conn.updated_at
+        };
+      }
+      groups[conn.person_name].connections.push(conn);
+      
+      // Track the most recent update
+      if (conn.updated_at > groups[conn.person_name].latest_updated_at) {
+        groups[conn.person_name].latest_updated_at = conn.updated_at;
+      }
+    });
+    
+    return Object.values(groups);
+  }, [connections]);
+
+  useEffect(() => {
+    if (user) {
+      fetchConnections();
+      fetchUserPatterns();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -73,20 +109,20 @@ export default function Projections() {
     }
     previousConnectionRef.current = selectedConnection;
 
-    // Fetch saved projection for current selection
+    // Fetch saved projection for current selection (by person_name)
     const savedProjection = await fetchSavedProjection(selectedConnection);
     
     if (savedProjection) {
       // Check if connection data has been updated since projection was generated
-      const selectedConn = selectedConnection 
-        ? connections.find(c => c.id === selectedConnection)
+      const selectedGroup = selectedConnection 
+        ? groupedConnections.find(g => g.person_name === selectedConnection)
         : null;
       
-      if (selectedConn) {
-        const connectionUpdatedAt = new Date(selectedConn.updated_at).getTime();
+      if (selectedGroup) {
+        const latestUpdatedAt = new Date(selectedGroup.latest_updated_at).getTime();
         const projectionGeneratedAt = new Date(savedProjection.generated_at).getTime();
         
-        if (connectionUpdatedAt > projectionGeneratedAt) {
+        if (latestUpdatedAt > projectionGeneratedAt) {
           // Connection has newer data, regenerate
           generateProjection();
           return;
@@ -142,8 +178,10 @@ export default function Projections() {
     }
   };
 
-  const fetchSavedProjection = async (connectionId: string | null): Promise<SavedProjection | null> => {
+  const fetchSavedProjection = async (personName: string | null): Promise<SavedProjection | null> => {
     try {
+      // For per-person projections, we need to get any connection_id for that person
+      // or query by person_name if stored differently
       let query = supabase
         .from('projections')
         .select('id, projection_data, projection_type, generated_at')
@@ -151,8 +189,14 @@ export default function Projections() {
         .order('generated_at', { ascending: false })
         .limit(1);
 
-      if (connectionId) {
-        query = query.eq('connection_id', connectionId);
+      if (personName) {
+        // Get any connection_id for this person to find their projection
+        const personConnections = connections.filter(c => c.person_name === personName);
+        if (personConnections.length > 0) {
+          query = query.in('connection_id', personConnections.map(c => c.id));
+        } else {
+          return null;
+        }
       } else {
         query = query.is('connection_id', null);
       }
@@ -181,9 +225,15 @@ export default function Projections() {
 
     setIsGenerating(true);
     try {
+      // Get all connections for the selected person (combines all their reports)
       const connectionsData = selectedConnection 
-        ? connections.filter(c => c.id === selectedConnection)
+        ? connections.filter(c => c.person_name === selectedConnection)
         : connections;
+
+      // Use the first connection_id for storage (represents the person)
+      const connectionIdForStorage = selectedConnection && connectionsData.length > 0
+        ? connectionsData[0].id
+        : null;
 
       const { data, error } = await supabase.functions.invoke('generate-projection', {
         body: {
@@ -192,7 +242,7 @@ export default function Projections() {
             analysis_data: c.analysis_data
           })),
           timeframe,
-          connection_id: selectedConnection,
+          connection_id: connectionIdForStorage,
           user_id: user?.id
         }
       });
@@ -309,7 +359,7 @@ export default function Projections() {
           </CardHeader>
           <CardContent>
             <ConnectionProjectionSelector
-              connections={connections}
+              groupedConnections={groupedConnections}
               selectedConnection={selectedConnection}
               onSelect={setSelectedConnection}
             />
