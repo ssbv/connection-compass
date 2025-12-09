@@ -163,15 +163,15 @@ export function ComparisonView({
               <Radar
                 name={personName1}
                 dataKey={personName1}
-                stroke="hsl(var(--teal))"
-                fill="hsl(var(--teal))"
+                stroke="#2DD4BF"
+                fill="#2DD4BF"
                 fillOpacity={0.3}
               />
               <Radar
                 name={personName2}
                 dataKey={personName2}
-                stroke="hsl(var(--primary))"
-                fill="hsl(var(--primary))"
+                stroke="#8B5CF6"
+                fill="#8B5CF6"
                 fillOpacity={0.3}
               />
               <Legend />
