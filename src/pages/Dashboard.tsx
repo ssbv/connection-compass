@@ -33,8 +33,8 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* File Tiles - only show before analysis starts */}
-        {!hasResults && !isAnalyzing && <FileTiles />}
+        {/* File Tiles - show pending uploads (hidden during analysis) */}
+        {!isAnalyzing && <FileTiles />}
 
         {/* Loading State */}
         {isAnalyzing && (
