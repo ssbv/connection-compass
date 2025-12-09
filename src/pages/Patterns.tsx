@@ -179,16 +179,18 @@ export default function Patterns() {
     };
   }, [connections, selectedPersonName, timeRange]);
 
-  // Get emotional states for heat map
+  // Get emotional states for heat map - grouped by person_name
   const emotionalStatesData = useMemo(() => {
     const stateMap: Record<string, Record<string, number>> = {};
+    const uniquePeople: Record<string, Connection> = {};
     
     connections.forEach(conn => {
       const data = conn.analysis_data;
       if (!data?.emotional_extraction?.user_states) return;
       
-      if (!stateMap[conn.id]) {
-        stateMap[conn.id] = {
+      // Use person_name as the key instead of conn.id
+      if (!stateMap[conn.person_name]) {
+        stateMap[conn.person_name] = {
           confusion: 0,
           anxiety: 0,
           safety: 0,
@@ -199,18 +201,20 @@ export default function Patterns() {
           unseen: 0,
           unsafe: 0
         };
+        uniquePeople[conn.person_name] = conn;
       }
       
+      // Aggregate emotional states across all reports for this person
       data.emotional_extraction.user_states.forEach(state => {
-        if (stateMap[conn.id][state] !== undefined) {
-          stateMap[conn.id][state]++;
+        if (stateMap[conn.person_name][state] !== undefined) {
+          stateMap[conn.person_name][state]++;
         }
       });
     });
 
     return {
       byConnection: stateMap,
-      connections: connections.filter(c => c.analysis_data?.emotional_extraction?.user_states)
+      connections: Object.values(uniquePeople)
     };
   }, [connections]);
 
