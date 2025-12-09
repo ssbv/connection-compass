@@ -4,6 +4,8 @@ import { AnalysisResult, UploadedFile } from "@/types/analysis";
 interface AnalysisContextType {
   uploadedFiles: UploadedFile[];
   setUploadedFiles: (files: UploadedFile[]) => void;
+  reportSnapshots: UploadedFile[];
+  setReportSnapshots: (files: UploadedFile[]) => void;
   analysisResult: AnalysisResult | null;
   setAnalysisResult: (result: AnalysisResult | null) => void;
   isAnalyzing: boolean;
@@ -21,6 +23,7 @@ const AnalysisContext = createContext<AnalysisContextType | undefined>(undefined
 
 export function AnalysisProvider({ children }: { children: ReactNode }) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [reportSnapshots, setReportSnapshots] = useState<UploadedFile[]>([]);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [pendingAuthSave, setPendingAuthSave] = useState(false);
@@ -34,6 +37,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       value={{
         uploadedFiles,
         setUploadedFiles,
+        reportSnapshots,
+        setReportSnapshots,
         analysisResult,
         setAnalysisResult,
         isAnalyzing,
