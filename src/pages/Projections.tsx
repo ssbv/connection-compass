@@ -57,6 +57,18 @@ export default function Projections() {
     }
   }, [user]);
 
+  // Auto-generate projection when connections load and no saved projection exists
+  useEffect(() => {
+    if (
+      !isLoading &&
+      connections.length > 0 &&
+      !projection &&
+      !isGenerating
+    ) {
+      generateProjection();
+    }
+  }, [isLoading, connections.length, projection]);
+
   const fetchConnections = async () => {
     setIsLoading(true);
     try {
