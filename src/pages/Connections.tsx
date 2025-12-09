@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Connection, AnalysisResult, Snapshot } from "@/types/analysis";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow, format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
@@ -460,7 +460,7 @@ export default function Connections() {
                   {groupedConnections[selectedPerson].map((conn) => {
                     const analysis = conn.analysis_data as AnalysisResult | null;
                     const displayDate = conn.analysis_date
-                      ? format(new Date(conn.analysis_date), "MMM d")
+                      ? format(parseISO(conn.analysis_date), "MMM d")
                       : format(new Date(conn.created_at), "MMM d");
                     return (
                       <div
@@ -533,7 +533,7 @@ export default function Connections() {
                         <PopoverTrigger asChild>
                           <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                             {selectedConnection.analysis_date 
-                              ? format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")
+                              ? format(parseISO(selectedConnection.analysis_date), "MMM d, yyyy")
                               : "Add date"}
                             <Pencil className="w-3 h-3" />
                           </button>
@@ -541,7 +541,7 @@ export default function Connections() {
                         <PopoverContent className="w-auto p-0" align="end">
                           <Calendar
                             mode="single"
-                            selected={selectedConnection.analysis_date ? new Date(selectedConnection.analysis_date) : undefined}
+                            selected={selectedConnection.analysis_date ? parseISO(selectedConnection.analysis_date) : undefined}
                             onSelect={(date) => handleUpdateDate(selectedConnection.id, date)}
                             initialFocus
                             className="pointer-events-auto"
@@ -676,7 +676,7 @@ export default function Connections() {
                         <PopoverTrigger asChild>
                           <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
                             {selectedConnection.analysis_date 
-                              ? format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")
+                              ? format(parseISO(selectedConnection.analysis_date), "MMMM d, yyyy")
                               : "Add date"}
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -684,7 +684,7 @@ export default function Connections() {
                         <PopoverContent className="w-auto p-0" align="end">
                           <Calendar
                             mode="single"
-                            selected={selectedConnection.analysis_date ? new Date(selectedConnection.analysis_date) : undefined}
+                            selected={selectedConnection.analysis_date ? parseISO(selectedConnection.analysis_date) : undefined}
                             onSelect={(date) => handleUpdateDate(selectedConnection.id, date)}
                             initialFocus
                             className="pointer-events-auto"
