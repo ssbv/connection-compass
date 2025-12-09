@@ -27,7 +27,7 @@ export function Sidebar() {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth");
+    navigate("/dashboard");
   };
 
   const isActive = (path: string) => location.pathname === path;
