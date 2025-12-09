@@ -185,7 +185,7 @@ const Index = () => {
       {/* Sidebar - Fixed full height */}
       <aside className="fixed top-0 left-0 h-screen w-56 bg-sidebar flex flex-col border-r border-border z-40">
         <div className="p-4">
-          <span className="text-sm font-medium text-sidebar-foreground">LOGO</span>
+          <span className="text-sm font-medium text-sidebar-foreground">Connection Compass</span>
         </div>
         
         {/* Navigation Links */}
@@ -238,7 +238,7 @@ const Index = () => {
         <div className="p-8 max-w-6xl mx-auto">
           {/* Print Header - Only visible when printing */}
           <div className="hidden print-header mb-8 text-center border-b border-border pb-6">
-            <h1 className="text-2xl font-bold text-foreground">Connection Lens Analysis Report</h1>
+            <h1 className="text-2xl font-bold text-foreground">Connection Compass Analysis Report</h1>
             <p className="text-sm text-muted-foreground mt-2">Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
 
