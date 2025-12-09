@@ -72,7 +72,7 @@ export default function Auth() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-foreground mb-2">
-            Connection Lens
+            Connection Compass
           </h1>
           <p className="text-muted-foreground">
             {isLogin ? "Welcome back" : "Create your account"}

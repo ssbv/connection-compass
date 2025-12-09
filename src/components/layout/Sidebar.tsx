@@ -46,7 +46,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-4 pt-6">
         <span className="text-sm font-semibold text-sidebar-foreground tracking-wide">
-          LOGO
+          Connection Compass
         </span>
       </div>
 

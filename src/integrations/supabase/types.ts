@@ -47,6 +47,51 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_states: {
+        Row: {
+          connection_id: string | null
+          created_at: string
+          id: string
+          intensity: number
+          snapshot_id: string | null
+          state_type: string
+          user_id: string
+        }
+        Insert: {
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          intensity?: number
+          snapshot_id?: string | null
+          state_type: string
+          user_id: string
+        }
+        Update: {
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          intensity?: number
+          snapshot_id?: string | null
+          state_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotional_states_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emotional_states_snapshot_id_fkey"
+            columns: ["snapshot_id"]
+            isOneToOne: false
+            referencedRelation: "snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -73,6 +118,79 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      projections: {
+        Row: {
+          connection_id: string | null
+          generated_at: string
+          id: string
+          projection_data: Json
+          projection_type: string
+          user_id: string
+        }
+        Insert: {
+          connection_id?: string | null
+          generated_at?: string
+          id?: string
+          projection_data?: Json
+          projection_type: string
+          user_id: string
+        }
+        Update: {
+          connection_id?: string | null
+          generated_at?: string
+          id?: string
+          projection_data?: Json
+          projection_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projections_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      repair_attempts: {
+        Row: {
+          attempt_type: string
+          connection_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempt_type: string
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempt_type?: string
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "repair_attempts_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       snapshots: {
         Row: {
@@ -114,6 +232,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_patterns: {
+        Row: {
+          burnout_risk_score: number | null
+          clarity_load_others: number | null
+          clarity_load_user: number | null
+          created_at: string
+          emotional_labor_score: number | null
+          id: string
+          initiation_ratio_others: number | null
+          initiation_ratio_user: number | null
+          last_calculated_at: string
+          pattern_data: Json | null
+          repair_load_others: number | null
+          repair_load_user: number | null
+          user_id: string
+        }
+        Insert: {
+          burnout_risk_score?: number | null
+          clarity_load_others?: number | null
+          clarity_load_user?: number | null
+          created_at?: string
+          emotional_labor_score?: number | null
+          id?: string
+          initiation_ratio_others?: number | null
+          initiation_ratio_user?: number | null
+          last_calculated_at?: string
+          pattern_data?: Json | null
+          repair_load_others?: number | null
+          repair_load_user?: number | null
+          user_id: string
+        }
+        Update: {
+          burnout_risk_score?: number | null
+          clarity_load_others?: number | null
+          clarity_load_user?: number | null
+          created_at?: string
+          emotional_labor_score?: number | null
+          id?: string
+          initiation_ratio_others?: number | null
+          initiation_ratio_user?: number | null
+          last_calculated_at?: string
+          pattern_data?: Json | null
+          repair_load_others?: number | null
+          repair_load_user?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
