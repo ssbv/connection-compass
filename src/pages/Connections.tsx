@@ -8,8 +8,10 @@ import { cn } from "@/lib/utils";
 import { ConnectionFullReport } from "@/components/results/ConnectionFullReport";
 import { SavedSnapshotsSection } from "@/components/results/SavedSnapshotsSection";
 import { Button } from "@/components/ui/button";
-import { Trash2, Download, RefreshCw, Loader2 } from "lucide-react";
+import { Trash2, Download, RefreshCw, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function Connections() {
   const { user } = useAuth();
@@ -162,6 +164,34 @@ export default function Connections() {
   const handleSingleReportClick = (conn: Connection) => {
     setSelectedPerson(conn.person_name);
     setSelectedConnection(conn);
+  };
+
+  const handleUpdateDate = async (connectionId: string, newDate: Date | undefined) => {
+    if (!user || !newDate) return;
+    
+    const formattedDate = format(newDate, "yyyy-MM-dd");
+    
+    const { error } = await supabase
+      .from("connections")
+      .update({ analysis_date: formattedDate })
+      .eq("id", connectionId);
+    
+    if (error) {
+      toast.error("Failed to update date");
+      return;
+    }
+    
+    // Update local state
+    setConnections(prev => 
+      prev.map(c => c.id === connectionId ? { ...c, analysis_date: formattedDate } : c)
+    );
+    
+    // Update selected connection if it's the one we updated
+    if (selectedConnection?.id === connectionId) {
+      setSelectedConnection(prev => prev ? { ...prev, analysis_date: formattedDate } : null);
+    }
+    
+    toast.success("Date updated");
   };
 
   const handleDeleteReport = async (connectionId: string) => {
@@ -499,11 +529,25 @@ export default function Connections() {
                       <h2 className="text-base font-medium text-foreground">
                         {selectedConnection.person_name}
                       </h2>
-                      {selectedConnection.analysis_date && (
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")}
-                        </p>
-                      )}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                            {selectedConnection.analysis_date 
+                              ? format(new Date(selectedConnection.analysis_date), "MMM d, yyyy")
+                              : "Add date"}
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={selectedConnection.analysis_date ? new Date(selectedConnection.analysis_date) : undefined}
+                            onSelect={(date) => handleUpdateDate(selectedConnection.id, date)}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     {selectedConnection.notes && (
                       <p className="text-xs text-muted-foreground mb-3 italic">
@@ -628,11 +672,25 @@ export default function Connections() {
                       <h2 className="text-lg font-medium text-foreground">
                         {selectedConnection.person_name}
                       </h2>
-                      {selectedConnection.analysis_date && (
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")}
-                        </p>
-                      )}
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                            {selectedConnection.analysis_date 
+                              ? format(new Date(selectedConnection.analysis_date), "MMMM d, yyyy")
+                              : "Add date"}
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={selectedConnection.analysis_date ? new Date(selectedConnection.analysis_date) : undefined}
+                            onSelect={(date) => handleUpdateDate(selectedConnection.id, date)}
+                            initialFocus
+                            className="pointer-events-auto"
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                     {selectedConnection.notes && (
                       <p className="text-sm text-muted-foreground mb-4 italic">
