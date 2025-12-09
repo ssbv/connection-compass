@@ -1,6 +1,6 @@
 import { Connection, AnalysisResult } from "@/types/analysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 import {
   LineChart,
@@ -26,25 +26,54 @@ export function GlobalHealthTrend({ connections, selectedPersonName }: GlobalHea
 
   // Sort connections by date
   const sortedConnections = [...filteredConnections].sort((a, b) => {
-    const dateA = a.analysis_date ? new Date(a.analysis_date) : new Date(a.created_at);
-    const dateB = b.analysis_date ? new Date(b.analysis_date) : new Date(b.created_at);
+    const dateA = a.analysis_date ? parseISO(a.analysis_date) : new Date(a.created_at);
+    const dateB = b.analysis_date ? parseISO(b.analysis_date) : new Date(b.created_at);
     return dateA.getTime() - dateB.getTime();
   });
 
-  // Build timeline data
-  const timelineData = sortedConnections.map((conn) => {
+  // Build timeline data with aggregation for same dates
+  const dateMap = new Map<string, {
+    healthScores: number[];
+    safetyScores: number[];
+    reciprocityScores: number[];
+    personNames: string[];
+    fullDate: string;
+  }>();
+
+  sortedConnections.forEach((conn) => {
     const analysis = conn.analysis_data as AnalysisResult | null;
-    const date = conn.analysis_date ? new Date(conn.analysis_date) : new Date(conn.created_at);
+    const date = conn.analysis_date 
+      ? parseISO(conn.analysis_date) 
+      : new Date(conn.created_at);
+    const dateKey = format(date, "MMM d");
+    const fullDate = format(date, "MMM d, yyyy");
     
-    return {
-      date: format(date, "MMM d"),
-      fullDate: format(date, "MMM d, yyyy"),
-      personName: conn.person_name,
-      healthScore: analysis?.meta?.overall_conversation_health_score || 0,
-      safety: analysis?.people?.B?.scores?.safety?.score || 0,
-      reciprocity: analysis?.people?.B?.scores?.reciprocity?.score || 0,
+    const existing = dateMap.get(dateKey) || {
+      healthScores: [],
+      safetyScores: [],
+      reciprocityScores: [],
+      personNames: [],
+      fullDate,
     };
+    
+    existing.healthScores.push(analysis?.meta?.overall_conversation_health_score || 0);
+    existing.safetyScores.push(analysis?.people?.B?.scores?.safety?.score || 0);
+    existing.reciprocityScores.push(analysis?.people?.B?.scores?.reciprocity?.score || 0);
+    existing.personNames.push(conn.person_name);
+    
+    dateMap.set(dateKey, existing);
   });
+
+  // Convert to array and calculate averages
+  const timelineData = Array.from(dateMap.entries()).map(([date, data]) => ({
+    date,
+    fullDate: data.fullDate,
+    personName: data.personNames.join(", "),
+    healthScore: Math.round(data.healthScores.reduce((a, b) => a + b, 0) / data.healthScores.length),
+    safety: Math.round(data.safetyScores.reduce((a, b) => a + b, 0) / data.safetyScores.length),
+    reciprocity: Math.round(data.reciprocityScores.reduce((a, b) => a + b, 0) / data.reciprocityScores.length),
+    reportCount: data.healthScores.length,
+  }));
 
   // Calculate trend
   const getTrend = () => {
@@ -128,8 +157,12 @@ export function GlobalHealthTrend({ connections, selectedPersonName }: GlobalHea
                 }}
                 labelStyle={{ color: "hsl(var(--foreground))" }}
                 formatter={(value: number, name: string, props: any) => {
+                  const { reportCount, personName } = props.payload;
+                  if (reportCount > 1 && name === "Health Score") {
+                    return [`${value} (Avg of ${reportCount}: ${personName})`, name];
+                  }
                   if (!selectedPersonName && name === "Health Score") {
-                    return [`${value} (${props.payload.personName})`, name];
+                    return [`${value} (${personName})`, name];
                   }
                   return [value, name];
                 }}
