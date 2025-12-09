@@ -16,6 +16,7 @@ Key Principles:
 - Always ground your ratings in specific examples from the conversation and attach them using the example_attributions model.
 - Use probability-based language. Frame insights as observations, not identity labels.
 - NEVER shame either party. NEVER diagnose attachment styles directly.
+- CRITICAL: The "emotional_extraction" and "reflection" sections are REQUIRED. You MUST always populate these fields completely, even if data is limited or emotional states are unclear.
 
 Core Dimensions (for each person):
 - Safety – Does this person help the interaction feel safe, non-threatening, and non-demeaning?
@@ -34,8 +35,9 @@ Dynamics Between Them:
 - Who carries the connection (A, B, or Balanced)
 - Who adjusts more (A, B, or Balanced)
 
-Emotional Extraction (NEW - for Person B / "You"):
-Analyze the emotional states experienced by Person B throughout the conversation:
+Emotional Extraction (REQUIRED - for Person B / "You"):
+You MUST analyze the emotional states experienced by Person B throughout the conversation.
+Available emotional states to detect:
 - confusion: feeling unclear about intent, mixed signals, uncertainty
 - anxiety: worry, stress, fear of outcome
 - safety: feeling secure, at ease, protected
@@ -46,18 +48,25 @@ Analyze the emotional states experienced by Person B throughout the conversation
 - unseen: feeling invisible, overlooked
 - unsafe: feeling threatened, on edge, defensive
 
-Repair Signals:
+IMPORTANT: If emotional states are unclear from the conversation, you MUST still return:
+- user_states: ["unclear"] 
+- user_intensity: 2 (neutral mid-point)
+Do NOT return an empty array for user_states.
+
+Repair Signals (REQUIRED):
 Identify any attempts to repair misunderstandings or conflicts:
 - Who initiated the repair attempt (A or B)
 - Was it reciprocated by the other party
 - Type: repair_attempted, repair_reciprocated, abandoned, avoidant, mutual_resolution
+If no repair signals are detected, return an empty array [].
 
-Closure Indicators:
+Closure Indicators (REQUIRED):
 Assess the state of closure in this conversation:
 - open: unresolved, ongoing tension or uncertainty
 - partial_closure: some resolution but lingering issues
 - full_closure: resolved, both parties aligned
 - avoidant_exit: one party disengaged without resolution
+If closure state is unclear, return: [{ "type": "open", "confidence": "low", "notes": "Insufficient data to determine closure status" }]
 
 Output Format:
 Respond with a single JSON object using this exact structure:
@@ -222,7 +231,14 @@ Each example attribution should have this structure:
 All numeric score values and radar values must be integers from 0–100.
 user_intensity must be an integer from 1-5 indicating overall emotional intensity for Person B.
 Do not include any keys not defined above.
-If the conversation has very little data, you must still return the full JSON skeleton with "confidence": "low" and neutral summaries.`;
+If the conversation has very little data, you must still return the full JSON skeleton with "confidence": "low" and neutral summaries.
+
+VALIDATION REQUIREMENTS (CRITICAL - your response will fail if these are not met):
+- emotional_extraction.user_states MUST contain at least one value (use "unclear" if undetermined)
+- emotional_extraction.user_intensity MUST be an integer 1-5 (use 2 if unclear)
+- emotional_extraction.repair_signals MUST be an array (can be empty [])
+- emotional_extraction.closure_indicators MUST be an array with at least one object
+- reflection MUST be fully populated with all sub-fields (what_just_happened, pattern_suggestion, next_step_options, reflection_prompts)`;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
