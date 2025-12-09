@@ -77,21 +77,21 @@ export function RepairCompletionTracker({ repairs }: RepairCompletionTrackerProp
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <Wrench className="h-5 w-5 text-primary" />
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-medium flex items-center gap-2">
+          <Wrench className="h-4 w-4 text-primary" />
           Repair Completion Tracker
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Status of closure and repair per connection
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
+      <CardContent className="pt-2">
+        <div className="space-y-2">
           {repairs.map((repair, index) => (
             <div 
               key={index}
-              className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors"
+              className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-card hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-center gap-3">
                 {getStatusIcon(repair.status)}

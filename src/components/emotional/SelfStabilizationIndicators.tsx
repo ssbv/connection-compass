@@ -39,17 +39,17 @@ export function SelfStabilizationIndicators({ indicators }: SelfStabilizationInd
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <Gauge className="h-5 w-5 text-primary" />
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-medium flex items-center gap-2">
+          <Gauge className="h-4 w-4 text-primary" />
           Self-Stabilization Indicators
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Patterns of self-soothing, clarity-seeking, and adjustment behaviors
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="pt-2">
+        <div className="space-y-3">
           {indicators.map((indicator, index) => (
             <div key={index} className="space-y-2">
               <div className="flex items-center justify-between">

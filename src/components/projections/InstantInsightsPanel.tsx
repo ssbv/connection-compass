@@ -132,50 +132,50 @@ export function InstantInsightsPanel({ connections, userPatterns, isLoading }: I
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Zap className="h-4 w-4 text-primary" />
             Instant Insights
           </CardTitle>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             Based on {totalConnections} connection{totalConnections !== 1 ? 's' : ''}
           </span>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Real-time metrics from your analyzed connections
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <Users className="h-5 w-5 mx-auto text-primary mb-2" />
-            <p className="text-2xl font-semibold">{totalConnections}</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <Users className="h-4 w-4 mx-auto text-primary mb-1.5" />
+            <p className="text-xl font-semibold">{totalConnections}</p>
             <p className="text-xs text-muted-foreground">Total Connections</p>
           </div>
           
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <Activity className="h-5 w-5 mx-auto text-primary mb-2" />
-            <p className="text-2xl font-semibold">{averageHealth ?? '—'}</p>
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <Activity className="h-4 w-4 mx-auto text-primary mb-1.5" />
+            <p className="text-xl font-semibold">{averageHealth ?? '—'}</p>
             <p className="text-xs text-muted-foreground">Avg Health Score</p>
           </div>
           
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <Shield className="h-5 w-5 mx-auto text-green-500 mb-2" />
-            <p className="text-2xl font-semibold">{averageSafety ?? '—'}</p>
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <Shield className="h-4 w-4 mx-auto text-green-500 mb-1.5" />
+            <p className="text-xl font-semibold">{averageSafety ?? '—'}</p>
             <p className="text-xs text-muted-foreground">Avg Safety Score</p>
           </div>
           
-          <div className="bg-muted/50 rounded-lg p-4 text-center">
-            <AlertTriangle className={`h-5 w-5 mx-auto mb-2 ${connectionsNeedingAttention > 0 ? 'text-orange-500' : 'text-muted-foreground'}`} />
-            <p className="text-2xl font-semibold">{connectionsNeedingAttention}</p>
+          <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <AlertTriangle className={`h-4 w-4 mx-auto mb-1.5 ${connectionsNeedingAttention > 0 ? 'text-orange-500' : 'text-muted-foreground'}`} />
+            <p className="text-xl font-semibold">{connectionsNeedingAttention}</p>
             <p className="text-xs text-muted-foreground">Need Attention</p>
           </div>
         </div>
 
         {/* Risk & Positive Indicators */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-orange-500" />

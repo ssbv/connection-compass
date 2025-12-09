@@ -43,14 +43,14 @@ export function ClarificationRepairPanel({
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Clarification & Repair Load</CardTitle>
-        <p className="text-sm text-muted-foreground">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-base font-medium">Clarification & Repair Load</CardTitle>
+        <p className="text-xs text-muted-foreground">
           Who asks for clarity and repairs misunderstandings more
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
+      <CardContent className="pt-3">
+        <div className="space-y-4">
           {/* Clarity Bar */}
           <div>
             <div className="flex justify-between text-sm mb-2">
@@ -100,7 +100,7 @@ export function ClarificationRepairPanel({
           </div>
 
           {/* Chart */}
-          <div className="h-40 mt-4">
+          <div className="h-28 mt-3">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data} layout="vertical" margin={{ left: 20 }}>
                 <XAxis type="number" hide />

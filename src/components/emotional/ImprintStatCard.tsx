@@ -46,18 +46,18 @@ export function ImprintStatCard({ label, count, icon: Icon, variant, connections
 
   return (
     <Card className={cn("transition-all hover:shadow-md", getVariantStyles())}>
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Icon className={cn("h-4 w-4", getIconColor())} />
-              <span className="text-sm font-medium text-foreground">{label}</span>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <Icon className={cn("h-3.5 w-3.5", getIconColor())} />
+              <span className="text-xs font-medium text-foreground">{label}</span>
             </div>
-            <p className={cn("text-2xl font-bold", getCountColor())}>{count}</p>
+            <p className={cn("text-xl font-bold", getCountColor())}>{count}</p>
             {connections.length > 0 && (
               <p className="text-xs text-muted-foreground">
-                {connections.slice(0, 3).join(', ')}
-                {connections.length > 3 && ` +${connections.length - 3} more`}
+                {connections.slice(0, 2).join(', ')}
+                {connections.length > 2 && ` +${connections.length - 2} more`}
               </p>
             )}
           </div>

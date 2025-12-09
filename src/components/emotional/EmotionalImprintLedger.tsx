@@ -24,17 +24,17 @@ interface EmotionalImprintLedgerProps {
 export function EmotionalImprintLedger({ imprints }: EmotionalImprintLedgerProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-medium flex items-center gap-2">
+          <BookOpen className="h-4 w-4 text-primary" />
           Emotional Imprint Ledger
         </CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Patterns of how you've felt across your connections
         </p>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <CardContent className="pt-2">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
           <ImprintStatCard
             label="Felt Dismissed"
             count={imprints.dismissed.count}
