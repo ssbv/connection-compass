@@ -3,7 +3,7 @@ import { Connection, AnalysisResult } from "@/types/analysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+
 import {
   Radar,
   RadarChart,
@@ -116,12 +116,12 @@ export function ComparisonView({
     },
   ];
 
-  const getDiffIcon = (val1: number | undefined, val2: number | undefined) => {
-    if (val1 === undefined || val2 === undefined) return null;
+  const getWinner = (val1: number | undefined, val2: number | undefined) => {
+    if (val1 === undefined || val2 === undefined) return "-";
     const diff = val1 - val2;
-    if (Math.abs(diff) < 5) return <Minus className="h-3 w-3 text-muted-foreground" />;
-    if (diff > 0) return <TrendingUp className="h-3 w-3 text-success" />;
-    return <TrendingDown className="h-3 w-3 text-danger" />;
+    if (Math.abs(diff) < 5) return "Tie";
+    if (diff > 0) return personName1;
+    return personName2;
   };
 
   return (
@@ -187,7 +187,7 @@ export function ComparisonView({
                 <th className="text-left p-3 font-medium text-foreground">Metric</th>
                 <th className="text-center p-3 font-medium text-foreground">{personName1}</th>
                 <th className="text-center p-3 font-medium text-foreground">{personName2}</th>
-                <th className="text-center p-3 font-medium text-foreground">Diff</th>
+                <th className="text-center p-3 font-medium text-foreground">Win</th>
               </tr>
             </thead>
             <tbody>
@@ -200,13 +200,14 @@ export function ComparisonView({
                   <td className="p-3 text-center font-medium text-foreground">
                     {metric.val2 !== undefined ? metric.val2 : "-"}
                   </td>
-                  <td className="p-3 text-center flex justify-center">
-                    {getDiffIcon(metric.val1, metric.val2)}
-                    {metric.val1 !== undefined && metric.val2 !== undefined && (
-                      <span className="ml-1 text-xs text-muted-foreground">
-                        {Math.abs(metric.val1 - metric.val2)}
-                      </span>
-                    )}
+                  <td className="p-3 text-center">
+                    {(() => {
+                      const winner = getWinner(metric.val1, metric.val2);
+                      if (winner === "Tie") return <span className="text-muted-foreground">Tie</span>;
+                      if (winner === "-") return "-";
+                      if (winner === personName1) return <span className="text-[#2DD4BF] font-medium">{personName1}</span>;
+                      return <span className="text-[#8B5CF6] font-medium">{personName2}</span>;
+                    })()}
                   </td>
                 </tr>
               ))}
