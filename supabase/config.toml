@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-projection]
 verify_jwt = false
+
+[functions.calculate-patterns]
+verify_jwt = false

@@ -66,6 +66,17 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
     setConnections((data || []) as unknown as Connection[]);
   };
 
+  const calculatePatterns = async (userId: string) => {
+    try {
+      await supabase.functions.invoke("calculate-patterns", {
+        body: { user_id: userId },
+      });
+    } catch (error) {
+      console.error("Error calculating patterns:", error);
+      // Don't throw - pattern calculation is secondary to the main save
+    }
+  };
+
   const saveEmotionalData = async (connectionId: string) => {
     if (!user || !analysisResult?.emotional_extraction) return;
 
@@ -181,11 +192,14 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
         if (error) throw error;
         connectionId = data.id;
 
-      // Save snapshots
+        // Save snapshots
         await saveSnapshots(connectionId);
 
         // Save emotional states and repair attempts
         await saveEmotionalData(connectionId);
+
+        // Calculate and update user patterns
+        await calculatePatterns(user.id);
 
         toast({
           title: "Analysis saved",
@@ -209,6 +223,9 @@ export function SaveConnectionDrawer({ open, onClose }: SaveConnectionDrawerProp
 
         // Save emotional states and repair attempts
         await saveEmotionalData(connectionId);
+
+        // Calculate and update user patterns
+        await calculatePatterns(user.id);
 
         toast({
           title: "Connection saved",

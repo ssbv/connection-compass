@@ -10,6 +10,7 @@ import { OverallResultsSection } from "@/components/results/OverallResultsSectio
 import { ThemYouSection } from "@/components/results/ThemYouSection";
 import { DynamicsSection } from "@/components/results/DynamicsSection";
 import { SnapshotsSection } from "@/components/results/SnapshotsSection";
+import { ReflectionSection } from "@/components/results/ReflectionSection";
 import { SaveConnectionDrawer } from "@/components/drawer/SaveConnectionDrawer";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -336,6 +337,9 @@ const Index = () => {
               </div>
               <div id="dynamics" className="print-section">
                 <DynamicsSection />
+              </div>
+              <div id="reflection" className="print-section">
+                <ReflectionSection reflection={analysisResult?.reflection} />
               </div>
             </div>
           )}

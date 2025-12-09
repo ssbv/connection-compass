@@ -23,6 +23,28 @@ export default function Patterns() {
   useEffect(() => {
     if (user) {
       fetchConnections();
+      
+      // Set up real-time subscription for new connections
+      const channel = supabase
+        .channel('patterns-connections')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'connections',
+            filter: `user_id=eq.${user.id}`
+          },
+          () => {
+            console.log('Connection changed, refetching...');
+            fetchConnections();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
