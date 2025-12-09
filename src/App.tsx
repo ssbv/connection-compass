@@ -10,6 +10,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Connections from "./pages/Connections";
 import Settings from "./pages/Settings";
+import Patterns from "./pages/Patterns";
+import Projections from "./pages/Projections";
+import EmotionalGrowth from "./pages/EmotionalGrowth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +61,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patterns"
+        element={
+          <ProtectedRoute>
+            <Patterns />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projections"
+        element={
+          <ProtectedRoute>
+            <Projections />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/emotional-growth"
+        element={
+          <ProtectedRoute>
+            <EmotionalGrowth />
           </ProtectedRoute>
         }
       />
