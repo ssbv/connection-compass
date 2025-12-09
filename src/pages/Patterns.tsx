@@ -242,20 +242,6 @@ export default function Patterns() {
     };
   }, [connections]);
 
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="p-6 space-y-6">
-          <Skeleton className="h-8 w-64" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Skeleton className="h-80" />
-            <Skeleton className="h-80" />
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
-
   const handleExportPDF = () => {
     window.print();
   };
@@ -263,6 +249,15 @@ export default function Patterns() {
   return (
     <AppLayout>
       <AuthGate>
+      {loading ? (
+        <div className="p-6 space-y-6">
+          <Skeleton className="h-8 w-64" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-80" />
+            <Skeleton className="h-80" />
+          </div>
+        </div>
+      ) : (
       <div className="p-4 space-y-4">
         {/* Print Header */}
         <div className="patterns-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
@@ -359,6 +354,7 @@ export default function Patterns() {
           </div>
         )}
       </div>
+      )}
       </AuthGate>
     </AppLayout>
   );
