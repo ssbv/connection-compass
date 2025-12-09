@@ -233,22 +233,22 @@ export default function Patterns() {
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Print Header */}
-        <div className="patterns-print-header hidden print:block text-center mb-6 pb-4 border-b border-border">
-          <h1 className="text-xl font-semibold">Connection Lens - Pattern Analysis Report</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className="patterns-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
+          <h1 className="text-lg font-semibold">Connection Lens - Pattern Analysis Report</h1>
+          <p className="text-xs text-muted-foreground mt-1">
             Generated on {new Date().toLocaleDateString()}
           </p>
         </div>
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 print:hidden">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-xl font-semibold text-foreground">
               Global Pattern Tracker
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Your behavioral patterns across all connections over time
             </p>
           </div>
@@ -287,7 +287,7 @@ export default function Patterns() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* Initiation Trends Chart */}
             <InitiationTrendsChart
               timeSeries={aggregatedMetrics?.timeSeries || []}
@@ -295,7 +295,7 @@ export default function Patterns() {
               avgOthers={aggregatedMetrics?.avgInitiationOthers || 0}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* Clarification & Repair Load */}
               <ClarificationRepairPanel
                 clarityUser={aggregatedMetrics?.clarityUser || 0}

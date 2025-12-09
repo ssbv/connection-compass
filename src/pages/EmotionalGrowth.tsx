@@ -266,22 +266,22 @@ export default function EmotionalGrowth() {
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Print Header */}
-        <div className="emotional-print-header hidden print:block text-center mb-6 pb-4 border-b border-border">
-          <h1 className="text-xl font-semibold">Connection Lens - Emotional Growth Report</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className="emotional-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
+          <h1 className="text-lg font-semibold">Connection Lens - Emotional Growth Report</h1>
+          <p className="text-xs text-muted-foreground mt-1">
             Generated on {new Date().toLocaleDateString()}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 print:hidden">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary" />
+            <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
+              <Heart className="h-5 w-5 text-primary" />
               Emotional Imprint & Growth
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               Track emotional residue, closure, healing, and self-stability
             </p>
           </div>

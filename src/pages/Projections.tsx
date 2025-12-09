@@ -274,21 +274,21 @@ export default function Projections() {
 
   return (
     <AppLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Print Header */}
-        <div className="projections-print-header hidden print:block text-center mb-6 pb-4 border-b border-border">
-          <h1 className="text-xl font-semibold">Connection Lens - Projection Report</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+        <div className="projections-print-header hidden print:block text-center mb-4 pb-3 border-b border-border">
+          <h1 className="text-lg font-semibold">Connection Lens - Projection Report</h1>
+          <p className="text-xs text-muted-foreground mt-1">
             Generated on {new Date().toLocaleDateString()}
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 print:hidden">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="text-xl font-semibold text-foreground">
               Future Projection Engine
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-0.5">
               AI-powered relational forecasts based on your behavioral patterns
             </p>
           </div>
@@ -374,7 +374,7 @@ export default function Projections() {
             <TabsTrigger value="12m">12 Months</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="3m" className="mt-6">
+          <TabsContent value="3m" className="mt-4">
             <GlobalForecastPanel 
               projection={projection} 
               timeframe="3m"
@@ -382,7 +382,7 @@ export default function Projections() {
               confidence={confidence}
             />
           </TabsContent>
-          <TabsContent value="6m" className="mt-6">
+          <TabsContent value="6m" className="mt-4">
             <GlobalForecastPanel 
               projection={projection} 
               timeframe="6m"
@@ -390,7 +390,7 @@ export default function Projections() {
               confidence={confidence}
             />
           </TabsContent>
-          <TabsContent value="12m" className="mt-6">
+          <TabsContent value="12m" className="mt-4">
             <GlobalForecastPanel 
               projection={projection} 
               timeframe="12m"

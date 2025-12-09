@@ -32,37 +32,37 @@ export function InitiationTrendsChart({
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium">Initiation Trends Over Time</CardTitle>
-        <p className="text-sm text-muted-foreground">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-base font-medium">Initiation Trends Over Time</CardTitle>
+        <p className="text-xs text-muted-foreground">
           Who starts conversations more often
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-3">
         {timeSeries.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
+          <div className="h-40 flex items-center justify-center text-muted-foreground text-sm">
             Not enough data points to show trends
           </div>
         ) : (
           <>
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
-                <p className="text-sm text-muted-foreground">Your Average</p>
-                <p className="text-2xl font-semibold text-primary">
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
+                <p className="text-xs text-muted-foreground">Your Average</p>
+                <p className="text-xl font-semibold text-primary">
                   {Math.round(avgUser)}%
                 </p>
               </div>
-              <div className="p-4 rounded-lg bg-muted/50 border border-border">
-                <p className="text-sm text-muted-foreground">Their Average</p>
-                <p className="text-2xl font-semibold text-foreground">
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-xs text-muted-foreground">Their Average</p>
+                <p className="text-xl font-semibold text-foreground">
                   {Math.round(avgOthers)}%
                 </p>
               </div>
             </div>
 
             {/* Chart */}
-            <div className="h-64">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
