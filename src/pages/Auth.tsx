@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAnalysis } from "@/contexts/AnalysisContext";
 import { Button } from "@/components/ui/button";
@@ -68,13 +68,17 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      <Link 
+        to="/" 
+        className="absolute top-6 left-6 text-xl font-semibold text-foreground hover:text-teal transition-colors"
+      >
+        Connection Compass
+      </Link>
+      
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">
-            Connection Compass
-          </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-lg">
             {isLogin ? "Welcome back" : "Create your account"}
           </p>
         </div>
